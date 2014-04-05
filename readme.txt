@@ -31,7 +31,7 @@ All settings can be adjusted via **Settings &rarr; Better Font Awesome**.
 = Usage =
 Better Font Awesome can be used in 3 different ways: shortcode, HTML, and TinyMCE
 
-**Shortcode**
+= Shortcode =
 `[icon name="flag" class="2x spin border" space="false"]`
 
 The `name` attribute is simply the name of the icon, and the `class` attribute can include any of the available Font Awesome classes listed on the Font Awesome [Examples Page](http://fortawesome.github.io/Font-Awesome/examples/ "Font Awesome Examples"). The optional `space` attribute can be set to "false" to omit the space that is included after the icon by default.
@@ -46,7 +46,7 @@ That means that the following shortcodes will all work, regardless of what versi
 
 *Note: icon names and classes will only work for Font Awesome versions in which they are included.*
 
-**HTML**
+= HTML =
 Note that prefixes are required for HTML usage, and are version-specific. For this reason, shortcode usage is encouraged over HTML.
 
 Version 4:
@@ -55,7 +55,7 @@ Version 4:
 Version 3:
 `<i class="icon-flag icon-2x icon-spin icon-border"></i>`
 
-**TinyMCE**
+= TinyMCE =
 Better Font Awesome also provides you with an easy-to-use drop down menu in the default WordPress TinyMCE, which you can use to automatically generate shortcodes for the icons you want. This drop-down list will automatically update with all available icons for whichever version you choose. Check out our [Screenshots](https://wordpress.org/plugins/better-font-awesome/screenshots/ "Screenshots") to see what it looks like.
 
 = Credits =
