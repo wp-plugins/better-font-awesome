@@ -31,7 +31,7 @@ All settings can be adjusted via **Settings &rarr; Better Font Awesome**.
 = Usage =
 Better Font Awesome can be used in 3 different ways: shortcode, HTML, and TinyMCE
 
-= 1. Shortcode 
+= 1. Shortcode =
 `[icon name="flag" class="2x spin border" space="false"]`
 
 The `name` attribute is simply the name of the icon, and the `class` attribute can include any of the available Font Awesome classes listed on the Font Awesome [Examples Page](http://fortawesome.github.io/Font-Awesome/examples/ "Font Awesome Examples"). The optional `space` attribute can be set to "false" to omit the space that is included after the icon by default.
