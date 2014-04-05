@@ -47,7 +47,6 @@ That means that the following shortcodes will all work, regardless of what versi
 *Note: icon names and classes will only work for Font Awesome versions in which they are included.*
 
 **HTML**
-
 Note that prefixes are required for HTML usage, and are version-specific. For this reason, shortcode usage is encouraged over HTML.
 
 Version 4:
@@ -57,7 +56,6 @@ Version 3:
 `<i class="icon-flag icon-2x icon-spin icon-border"></i>`
 
 **TinyMCE**
-
 Better Font Awesome also provides you with an easy-to-use drop down menu in the default WordPress TinyMCE, which you can use to automatically generate shortcodes for the icons you want. This drop-down list will automatically update with all available icons for whichever version you choose. Check out our [Screenshots](https://wordpress.org/plugins/better-font-awesome/screenshots/ "Screenshots") to see what it looks like.
 
 = Credits =
