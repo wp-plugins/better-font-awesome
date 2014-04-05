@@ -8,11 +8,11 @@ Stable tag: 0.9.0
 License: GPLv2+
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-The better Font Awesome icon plugin for WordPress.
+The Better Font Awesome plugin for WordPress.
 
 == Description ==
 
-Better Font Awesome gives you easy access to the full [Font Awesome](http://fortawesome.github.io/Font-Awesome/ "Font Awesome icon website") icon library using shortcodes, HTML, and TinyMCE, and allows you to update your version of Font Awesome without having to change all your shortcodes.
+Better Font Awesome gives you easy access to the full [Font Awesome](http://fortawesome.github.io/Font-Awesome/ "Font Awesome icon website") icon library using shortcodes, HTML, and TinyMCE, and allows you to update your version of Font Awesome without having to change your existing shortcodes.
 
 
 = Features =
@@ -21,19 +21,22 @@ Better Font Awesome gives you easy access to the full [Font Awesome](http://fort
 
 * **Backwards compatible** - shortcode output is automatically updated depending on which version you choose, meaning that you can switch versions without having to modify your shortcodes.
 
-* **Compatible with other plugins** - designed to work with shortcodes generated with plugins like [Font Awesome Icons](http://wordpress.org/plugins/font-awesome/ "Font Awesome Icons"), [Font Awesome More Icons](https://wordpress.org/plugins/font-awesome-more-icons/ "Font Awesome More Icons"), and [Font Awesome Shortcodes](https://wordpress.org/plugins/font-awesome-shortcodes/), so you can switch to Better Font Awesome and your shortcodes will still work.
+* **Compatible with other plugins** - designed to work with shortcodes generated with plugins like [Font Awesome Icons](http://wordpress.org/plugins/font-awesome/ "Font Awesome Icons"), [Font Awesome More Icons](https://wordpress.org/plugins/font-awesome-more-icons/ "Font Awesome More Icons"), and [Font Awesome Shortcodes](https://wordpress.org/plugins/font-awesome-shortcodes/), so you can switch to Better Font Awesome and your existing shortcodes will still work.
 
-* **CDN Speeds** - utilizes CSS &amp; font files hosted by the excellent [Bootstrap CDN](http://www.bootstrapcdn.com/ "Bootstrap CDN"), which means super-fast load times.
+* **CDN speeds** - utilizes CSS &amp; font files hosted by the excellent [Bootstrap CDN](http://www.bootstrapcdn.com/ "Bootstrap CDN"), which means super-fast load times.
+
+= Settings =
+All settings can be adjusted via **Settings &rarr; Better Font Awesome**.
 
 = Usage =
 Better Font Awesome can be used in 3 different ways: shortcode, HTML, and TinyMCE
 
-** Shortcode **
+**Shortcode**
 `[icon name="flag" class="2x spin border" space="false"]`
 
 The `name` attribute is simply the name of the icon, and the `class` attribute can include any of the available Font Awesome classes listed on the Font Awesome [Examples Page](http://fortawesome.github.io/Font-Awesome/examples/ "Font Awesome Examples"). The optional `space` attribute can be set to "false" to omit the space that is included after the icon by default.
 
-Prefixes (icon- and fa-) are not necessary for shortcode usage. What's great is that Better Font Awesome will automatically remove and replace prefixes depending on the Font Awesome version you choose. So if you have existing Font Awesome shortcodes *with prefixes* (from other plugins, for example), they'll still work just fine. 
+Prefixes (`icon-` and `fa-`) are not necessary for shortcode usage. What's great is that Better Font Awesome will automatically remove and replace prefixes depending on the Font Awesome version you choose. So if you have existing Font Awesome shortcodes *with prefixes* (from other plugins, for example), they'll still work just fine. 
 
 That means that the following shortcodes will all work, regardless of what version of Font Awesome you choose:
 `[icon name="flag" class="2x spin border"]`
@@ -41,18 +44,28 @@ That means that the following shortcodes will all work, regardless of what versi
 `[icon name="fa-flag" class="fa-2x fa-spin fa-border"]`
 `[icon name="icon-flag" class="fa-2x spin icon-border"]`
 
-*Note: icon names and classes will only work for Font Awesome versions in which they are supported.*
+*Note: icon names and classes will only work for Font Awesome versions in which they are included.*
 
-** HTML **
+**HTML**
+
 Note that prefixes are required for HTML usage, and are version-specific. For this reason, shortcode usage is encouraged over HTML.
+
 Version 4:
 `<i class="fa-flag fa-2x fa-spin fa-border"></i>`
 
 Version 3:
 `<i class="icon-flag icon-2x icon-spin icon-border"></i>`
 
-** TinyMCE **
-Better Font Awesome also provides you with an easy-to-use drop down menu in the default WordPress TinyMCE, which you can use to automatically generate a shortcode for the icon you want. Check out our [Screenshots](https://wordpress.org/plugins/better-font-awesome/screenshots/ "Screenshots") to see what it looks like.
+**TinyMCE**
+
+Better Font Awesome also provides you with an easy-to-use drop down menu in the default WordPress TinyMCE, which you can use to automatically generate shortcodes for the icons you want. This drop-down list will automatically update with all available icons for whichever version you choose. Check out our [Screenshots](https://wordpress.org/plugins/better-font-awesome/screenshots/ "Screenshots") to see what it looks like.
+
+= Credits =
+Many thanks to the following plugins and their authors:
+
+* [Font Awesome Icons](http://wordpress.org/plugins/font-awesome/ "Font Awesome Icons") by [Rachel Baker](http://rachelbaker.me/ "Rachel Baker")
+* [Font Awesome More Icons](https://wordpress.org/plugins/font-awesome-more-icons/ "Font Awesome More Icons") by [Web Guys](http://webguysaz.com/ "Web Guys")
+* [Font Awesome Shortcodes](https://wordpress.org/plugins/font-awesome-shortcodes/) by [FoolsRun](https://profiles.wordpress.org/foolsrun/ "FoolsRun")
 
 
 == Installation ==
@@ -68,7 +81,7 @@ This section describes how to install the plugin and get it working.
 
 = How is this plugin different from other Font Awesome plugins? =
 
-This plugin is unique in that it automatically pulls in *all* available version of Font Awesome, meaning you never have to wait for the plugin developer to add the latest version. Furthermore, Better Font Awesome is designed to work with a wide variety of shortcode formats used by other Font Awesome plugins - this means that you can easily switch to Better Font Awesome (if, for example, you need to include icons from the most recent version of Font Awesome which isn't always available with other plugins), and they will still work.
+This plugin is unique in that it automatically pulls in *all* available versions of Font Awesome, meaning you never have to wait for the plugin developer to add the latest version. Furthermore, Better Font Awesome is designed to work with a wide variety of shortcode formats used by other Font Awesome plugins - this means that you can easily switch to Better Font Awesome (if, for example, you need to include icons from the most recent version of Font Awesome, which isn't always available with other plugins), and they will still work.
 
 = Do I have to install any font files? =
 
@@ -76,7 +89,7 @@ Nope. Better Font Awesome automatically pulls in everything you need, and it doe
 
 = What happens if I have another plugin/theme that uses Font Awesome? =
 
-Better Font Awesome does it's best to load after any existing Font Awesome CSS, which can minimize conflicts. If you are experiencing any unexpected behavior resulting from plugin/theme conflicts, you can try checking the box to "Remove existing Font Awesome version" in under Settings &rarr; Better Font Awesome.
+Better Font Awesome does it's best to load after any existing Font Awesome CSS, which can minimize conflicts. If you are experiencing any unexpected behavior resulting from plugin/theme conflicts, you can try checking the box to "Remove existing Font Awesome styles" in under **Settings &rarr; Better Font Awesome**.
 
 
 == Screenshots ==
@@ -95,10 +108,3 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 = 0.9.0 =
 * First release!
-
-
-== Credits ==
-Many thanks to the following plugins and their authors:
-* [Font Awesome Icons](http://wordpress.org/plugins/font-awesome/ "Font Awesome Icons") by [Rachel Baker](http://rachelbaker.me/ "Rachel Baker")
-* [Font Awesome More Icons](https://wordpress.org/plugins/font-awesome-more-icons/ "Font Awesome More Icons") by [Web Guys](http://webguysaz.com/ "Web Guys")
-* [Font Awesome Shortcodes](https://wordpress.org/plugins/font-awesome-shortcodes/) by [FoolsRun](https://profiles.wordpress.org/foolsrun/ "FoolsRun")
