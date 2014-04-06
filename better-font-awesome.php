@@ -3,7 +3,7 @@
  * Plugin Name: Better Font Awesome
  * Plugin URI: http://wordpress.org/plugins/better-font-awesome
  * Description: The better Font Awesome icon plugin for Wordpress.
- * Version: 0.9.0
+ * Version: 0.9.1
  * Author: Mickey Kay
  * Author URI: mickey@mickeykaycreative.com
  * License:     GPLv2+
@@ -29,14 +29,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-/**
-
-	TODO:
-	- Make sure all icons are showing
-	- Make backwards compatible for all shortcodes including "FA Icons", "FA More", and "FA Shortcodes"
-
-**/
-
 /*--------------------------------------------*
  * Titan Framework
  *--------------------------------------------*/
@@ -58,7 +50,7 @@ $activePlugins = get_option('active_plugins');
 if ( is_array( $activePlugins ) ) {
     foreach ( $activePlugins as $plugin ) {
         if ( is_string( $plugin ) ) {
-            if ( stripos( $plugin, '/titan-framework.php' ) !== false ) {
+            if ( stripos( $plugin, '/Titan-Framework.php' ) !== false ) {
                 $useEmbeddedFramework = false;
                 break;
             }
@@ -67,7 +59,7 @@ if ( is_array( $activePlugins ) ) {
 }
 // Use the embedded Titan Framework
 if ( $useEmbeddedFramework && ! class_exists( 'TitanFramework' ) ) {
-    require_once( plugin_dir_path( __FILE__ ) . 'titan-framework/titan-framework.php' );
+    require_once( plugin_dir_path( __FILE__ ) . 'Titan-Framework/titan-framework.php' );
 }
 
 /**
@@ -155,7 +147,8 @@ class BetterFontAwesome {
 	 */
 	function setup_cdn_data() {
 		$remote_data = wp_remote_get( 'http://api.jsdelivr.com/v1/bootstrap/libraries/font-awesome/' );
-		$this->cdn_data = json_decode( wp_remote_retrieve_body( $remote_data ) )[0];
+		$decoded_data = json_decode( wp_remote_retrieve_body( $remote_data ) );
+		$this->cdn_data = $decoded_data[0];
 	}
 
 	/*
