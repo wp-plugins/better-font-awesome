@@ -134,15 +134,16 @@ class BetterFontAwesome {
 		$this->setup_global_variables();
 
         // Add PHP variables in head for use by TinyMCY JavaScript
-        foreach( array('post.php','post-new.php') as $hook ) {
-        	add_action( "admin_head-$hook", array( $this, 'admin_head_variables' ) );
-        }
+        add_action( "admin_head", array( $this, 'admin_head_variables' ) );
 
 		// Add Font Awesome stylesheet to TinyMCE
 		add_editor_style( $this->stylesheet_url );
 
 	}
 
+	/*
+	 * Runs when admin is initialized
+	 */
 	function admin_init() {
         if ( ! current_user_can('edit_posts') && ! current_user_can('edit_pages') )
             return;     
@@ -186,7 +187,7 @@ class BetterFontAwesome {
 	function do_options_page() {
 
 		// Setup available versions
-		$versions[ 'latest' ] = __( 'Latest', 'better-font-awesome' ) . ' (' . $this->cdn_data->lastversion . ')';
+		$versions[ 'latest' ] = __( 'Always Latest', 'better-font-awesome' ) . ' (' . $this->cdn_data->lastversion . ')';
 
 		foreach( $this->cdn_data->versions as $version ) {
 			// Exclude v2.0
@@ -217,10 +218,10 @@ class BetterFontAwesome {
 		) );
 
 		$optionsPage->createOption( array(
-		    'name' => __( 'Remove existing Font Awesome styles and shortcodes', 'better-font-awesome' ),
+		    'name' => __( 'Remove existing FA', 'better-font-awesome' ),
 		    'id' => 'remove_existing_fa',
 		    'type' => 'checkbox',
-		    'desc' => __( 'Attempt to remove Font Awesome CSS and shortcodes included by other plugins and themes. This may help if icons are not rendering properly.', 'better-font-awesome' ),
+		    'desc' => __( 'Remove Font Awesome CSS and shortcodes added by other plugins and themes. This may help if icons are not rendering properly.', 'better-font-awesome' ),
 		    'default' => false,
 		) );
 
