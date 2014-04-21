@@ -3,7 +3,7 @@
  * Plugin Name: Better Font Awesome
  * Plugin URI: http://wordpress.org/plugins/better-font-awesome
  * Description: The better Font Awesome icon plugin for Wordpress.
- * Version: 0.9.1
+ * Version: 0.9.2
  * Author: Mickey Kay
  * Author URI: mickey@mickeykaycreative.com
  * License:     GPLv2+
@@ -98,7 +98,10 @@ class BetterFontAwesome {
 		// Hook up to the init action - on 11 to make sure it loads after other FA plugins
 		add_action( 'init', array( $this, 'init' ), 11 );
 
-		// Do scripts and styles
+		// Admin init
+		add_action( 'admin_head', array( &$this, 'admin_init' ) );
+
+		// Do scripts and styles - on 11 to make sure styles/scripts load after other plugins
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_scripts_and_styles' ), 11 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts_and_styles' ), 11 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'custom_admin_css' ), 11 );
@@ -116,9 +119,13 @@ class BetterFontAwesome {
 	 * Runs when the plugin is initialized
 	 */
 	function init() {
-
 		// Setup localization
 		load_plugin_textdomain( self::slug, false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+
+		// Remove existing [icon] shortcodes added via other plugins/themes
+		if ( $this->titan->getOption( 'remove_existing_fa' ) ) {
+			remove_shortcode('icon');
+		}
 
 		// Register the shortcode [icon]
 		add_shortcode( 'icon', array( $this, 'render_shortcode' ) );
@@ -129,18 +136,22 @@ class BetterFontAwesome {
         // Add PHP variables in head for use by TinyMCY JavaScript
         foreach( array('post.php','post-new.php') as $hook ) {
         	add_action( "admin_head-$hook", array( $this, 'admin_head_variables' ) );
-        	
-        	if ( ( current_user_can('edit_posts') || current_user_can('edit_pages') ) &&
-                get_user_option('rich_editing') ) {
-	        	add_filter( 'mce_external_plugins', array( $this, 'register_tinymce_plugin' ) );
-	        	add_filter( 'mce_buttons', array( $this, 'add_tinymce_buttons' ) );
-	        }
         }
 
 		// Add Font Awesome stylesheet to TinyMCE
 		add_editor_style( $this->stylesheet_url );
 
 	}
+
+	function admin_init() {
+        if ( ! current_user_can('edit_posts') && ! current_user_can('edit_pages') )
+            return;     
+
+        if ( get_user_option('rich_editing') == 'true' ) {  
+            add_filter( 'mce_external_plugins', array( $this, 'register_tinymce_plugin' ) );
+	        add_filter( 'mce_buttons', array( $this, 'add_tinymce_buttons' ) );
+        }  
+    }  
 
 	/**
 	 * Get CDN data and prefix based on selected version
@@ -206,10 +217,10 @@ class BetterFontAwesome {
 		) );
 
 		$optionsPage->createOption( array(
-		    'name' => __( 'Remove existing Font Awesome styles', 'better-font-awesome' ),
+		    'name' => __( 'Remove existing Font Awesome styles and shortcodes', 'better-font-awesome' ),
 		    'id' => 'remove_existing_fa',
 		    'type' => 'checkbox',
-		    'desc' => __( 'Remove Font Awesome CSS included by other plugins and themes. This may help if icons are not rendering as expected.', 'better-font-awesome' ),
+		    'desc' => __( 'Attempt to remove Font Awesome CSS and shortcodes included by other plugins and themes. This may help if icons are not rendering properly.', 'better-font-awesome' ),
 		    'default' => false,
 		) );
 
@@ -305,14 +316,27 @@ class BetterFontAwesome {
 		wp_enqueue_style( 'bfa-admin-styles', plugins_url( 'inc/css/admin-styles.css', __FILE__ ) );
 	}
 
+	/**
+	 * Load TinyMCE Font Awesome dropdown plugin
+	*/
 	function register_tinymce_plugin( $plugin_array ) {
-        $plugin_array['font_awesome_icons'] = plugins_url('inc/js/tinymce-icons.js', __FILE__ );
+        global $tinymce_version;
+
+        // >= TinyMCE v4 - include newer plugin
+        if ( version_compare( $tinymce_version, '4000', '>=' ) )
+        	$plugin_array['bfa_plugin'] = plugins_url( 'inc/js/tinymce-icons.js', __FILE__ );
+        // < TinyMCE v4 - include old plugin
+        else
+        	$plugin_array['bfa_plugin'] = plugins_url( 'inc/js/tinymce-icons-old.js', __FILE__ );
 
         return $plugin_array;
     }
 
+    /*
+     * Add TinyMCE dropdown element
+     */
     function add_tinymce_buttons( $buttons ) {
-        array_push($buttons, '|', 'fontAwesomeIconSelect');
+        array_push( $buttons, 'bfaSelect' );
 
         return $buttons;
     }
