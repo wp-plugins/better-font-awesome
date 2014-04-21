@@ -4,7 +4,7 @@ Tags: better, font, awesome, icon, bootstrap, fontstrap, cdn, shortcode
 Donate link: http://mightyminnow.com
 Requires at least: 3.0
 Tested up to: 3.8.1
-Stable tag: 0.9.1
+Stable tag: 0.9.2
 License: GPLv2+
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -98,6 +98,9 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 == Changelog ==
 
+= 0.9.2 =
+* Fixes issue of missing icon drop-down select menu in TinyMCE (adds compatibility for TinyMCE v4)
+
 = 0.9.1 =
 * Added fixes for older versions of PHP (Titan Framework not found, unexpected "[")
 
@@ -106,6 +109,9 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 
 == Upgrade Notice ==
+
+= 0.9.2 =
+* Fixes issue of missing icon drop-down select menu in TinyMCE (adds compatibility for TinyMCE v4)
 
 = 0.9.1 =
 * Added fixes for older versions of PHP (Titan Framework not found, unexpected "[")
