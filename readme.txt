@@ -58,8 +58,8 @@ Version 3:
 = 3. TinyMCE =
 Better Font Awesome also provides you with an easy-to-use drop down menu in the default WordPress TinyMCE, which you can use to automatically generate shortcodes for the icons you want. This drop-down list will automatically update with all available icons for whichever version you choose. Check out our [Screenshots](https://wordpress.org/plugins/better-font-awesome/screenshots/ "Screenshots") to see what it looks like.
 
-= Advanced =
-Please feel free to use BFA! If you want to hook into BFA, the best way is via the global `$better_font_awesome` variable, which has a few public variables that might be useful:
+= Advanced / Integration=
+Please feel free to integrate Better Font Awesome in your plugin or theme! If you want to hook into Better Font Awesome, the best way is via the global `$better_font_awesome` object, which has a few public properties that might be useful:
 
 `$better_font_awesome->prefix`
 The FontAwesome prefix to use with the selected version of Font Awesome.
