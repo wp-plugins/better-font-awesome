@@ -58,6 +58,13 @@ Version 3:
 = 3. TinyMCE =
 Better Font Awesome also provides you with an easy-to-use drop down menu in the default WordPress TinyMCE, which you can use to automatically generate shortcodes for the icons you want. This drop-down list will automatically update with all available icons for whichever version you choose. Check out our [Screenshots](https://wordpress.org/plugins/better-font-awesome/screenshots/ "Screenshots") to see what it looks like.
 
+= Advanced =
+Please feel free to use BFA! If you want to hook into BFA, the best way is via the global `$better_font_awesome` variable, which has a few public variables that might be useful:
+
+`$better_font_awesome->prefix' - the FontAwesome prefix to use with the selected version of Font Awesome.
+`$better_font_awesome->icons` - an alphabetical array of all available icons based on the selected version of Font Awesome.
+
+
 = Credits =
 Many thanks to the following plugins and their authors:
 
@@ -98,6 +105,11 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 == Changelog ==
 
+= 0.9.3 =
+* Fixed admin-styles.css bug that was applying FontAwesome font-face outside TinyMCE
+* Print JS variables in front-end to aid developers
+* Create global $better_font_awesome object for developers to access
+
 = 0.9.2 =
 * Fixes issue of missing icon drop-down select menu in TinyMCE (adds compatibility for TinyMCE v4)
 
@@ -109,6 +121,11 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 
 == Upgrade Notice ==
+
+= 0.9.3 =
+* Fixed admin-styles.css bug that was applying FontAwesome font-face outside TinyMCE
+* Print JS variables in front-end to aid developers
+* Create global $better_font_awesome object for developers to access
 
 = 0.9.2 =
 * Fixes issue of missing icon drop-down select menu in TinyMCE (adds compatibility for TinyMCE v4)
