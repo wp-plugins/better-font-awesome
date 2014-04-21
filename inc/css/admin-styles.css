@@ -24,7 +24,6 @@
 }
 
 /* Override editor icon font family */
-[class*="icon-"],
 .fa {
 	font-family: FontAwesome !important;
 }

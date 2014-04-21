@@ -3,7 +3,7 @@
  * Plugin Name: Better Font Awesome
  * Plugin URI: http://wordpress.org/plugins/better-font-awesome
  * Description: The better Font Awesome icon plugin for Wordpress.
- * Version: 0.9.2
+ * Version: 0.9.3
  * Author: Mickey Kay
  * Author URI: mickey@mickeykaycreative.com
  * License:     GPLv2+
@@ -75,9 +75,10 @@ class BetterFontAwesome {
 
 
 	/*--------------------------------------------*
-	 * variables
+	 * Variables
 	 *--------------------------------------------*/
-	protected $cdn_data, $titan, $version, $prefix, $minified;
+	public $prefix, $icons;
+	protected $cdn_data, $titan, $version, $minified;
 
 	/**
 	 * Constructor
@@ -134,7 +135,8 @@ class BetterFontAwesome {
 		$this->setup_global_variables();
 
         // Add PHP variables in head for use by TinyMCY JavaScript
-        add_action( "admin_head", array( $this, 'admin_head_variables' ) );
+        add_action( 'wp_head', array( $this, 'admin_head_variables' ) );
+        add_action( 'admin_head', array( $this, 'admin_head_variables' ) );
 
 		// Add Font Awesome stylesheet to TinyMCE
 		add_editor_style( $this->stylesheet_url );
@@ -164,6 +166,38 @@ class BetterFontAwesome {
 	}
 
 	/*
+     * Create list of available icons based on selected version of Font Awesome
+     */
+    function get_icons() {
+    	// Get Font Awesome CSS
+	    if( isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] == "on" )
+		    $prefix = 'https:';
+		else
+		    $prefix = 'http:';
+
+		$remote_data = wp_remote_get( $prefix . $this->stylesheet_url );
+	    $css = wp_remote_retrieve_body( $remote_data );
+	 
+	 	// Get all CSS selectors that have a content: pseudo-element rule
+	 	preg_match_all('/(\.[^}]*)\s*{\s*(content:)/s', $css, $matches );
+	    $selectors = $matches[1];
+
+	    // Select all icon- and fa- selectors from and split where there are commas
+	    foreach ( $selectors as $selector ) {
+	    	preg_match_all('/\.(icon-|fa-)([^,]*)\s*:before/s', $selector, $matches );
+	    	$clean_selectors = $matches[2];
+
+	    	// Create array of selectors
+	   		foreach( $clean_selectors as $clean_selector )
+	   			$this->icons[] = $clean_selector;
+	    }
+
+	    // Alphabetize & join with comma for use in JS array
+		sort( $this->icons );
+				
+    }
+
+	/*
 	 * Set the Font Awesome stylesheet url to use based on the settings
 	 */
 	function setup_global_variables() {
@@ -174,6 +208,7 @@ class BetterFontAwesome {
 		if ( 'latest' == $this->version )
 			$this->version = $this->cdn_data->lastversion;
 
+		// Set stylesheet URL
 		$stylesheet = $this->minified ? '/css/font-awesome.min.css' : '/css/font-awesome.css';
 		$this->stylesheet_url = '//netdna.bootstrapcdn.com/font-awesome/' . $this->version . $stylesheet;
 
@@ -182,6 +217,9 @@ class BetterFontAwesome {
 			$this->prefix = 'fa-';
 		elseif ( 0 <= version_compare( $this->version, '3' ) )
 			$this->prefix = 'icon-';
+
+		// Setup icons for selected version of Font Awesome
+		$this->get_icons();
 	}
 
 	function do_options_page() {
@@ -346,44 +384,19 @@ class BetterFontAwesome {
 	 * Add PHP variables in head for use by TinyMCE JavaScript
 	 */
 	function admin_head_variables() {
-	    
-		// Get Font Awesome CSS
-	    if( isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] == "on" )
-		    $prefix = 'https:';
-		else
-		    $prefix = 'http:';
-
-		$remote_data = wp_remote_get( $prefix . $this->stylesheet_url );
-	    $css = wp_remote_retrieve_body( $remote_data );
-	 
-	 	// Get all CSS selectors that have a content: pseudo-element rule
-	 	preg_match_all('/(\.[^}]*)\s*{\s*(content:)/s', $css, $matches );
-	    $selectors = $matches[1];
-
-	    // Select all icon- and fa- selectors from and split where there are commas
-	    foreach ( $selectors as $selector ) {
-	    	preg_match_all('/\.(icon-|fa-)([^,]*)\s*:before/s', $selector, $matches );
-	    	$clean_selectors = $matches[2];
-
-	    	// Create array of selectors
-	   		foreach( $clean_selectors as $clean_selector )
-	   			$classes[] = $clean_selector;
-	    }
-
-	    // Alphabetize & join with comma for use in JS array
-		sort( $classes );
-		$classes = implode( ",", $classes );
+		$icon_list = implode( ",", $this->icons );
 	    ?>
-		<!-- Pass $classes variable so it is accessible to TinyMCE JavaScript -->
+		<!-- Better Font Awesome PHP variables for use by TinyMCE JavaScript -->
 		<script type='text/javascript'>
 		var bfa_vars = {
 		    'fa_prefix': '<?php echo $this->prefix; ?>', 
-		    'fa_icons': '<?php echo $classes; ?>',
+		    'fa_icons': '<?php echo $icon_list; ?>',
 		};
 		</script>
-		<!-- TinyMCE Shortcode Plugin -->
+		<!-- TinyMCE Better Font Awesome Plugin -->
 	    <?php
 	}
   
 }
+global $better_font_awesome;
 $better_font_awesome = new BetterFontAwesome();
