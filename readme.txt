@@ -61,8 +61,11 @@ Better Font Awesome also provides you with an easy-to-use drop down menu in the 
 = Advanced =
 Please feel free to use BFA! If you want to hook into BFA, the best way is via the global `$better_font_awesome` variable, which has a few public variables that might be useful:
 
-`$better_font_awesome->prefix` - the FontAwesome prefix to use with the selected version of Font Awesome.
-`$better_font_awesome->icons` - an alphabetical array of all available icons based on the selected version of Font Awesome.
+**`$better_font_awesome->prefix`**
+The FontAwesome prefix to use with the selected version of Font Awesome.
+
+**`$better_font_awesome->icons`**
+An alphabetical array of all available icons based on the selected version of Font Awesome.
 
 
 = Credits =
