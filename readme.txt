@@ -62,7 +62,7 @@ Better Font Awesome also provides you with an easy-to-use drop down menu in the 
 Please feel free to integrate Better Font Awesome in your plugin or theme! If you want to hook into Better Font Awesome, the best way is via the global `$better_font_awesome` object, which has a few public properties that might be useful:
 
 `$better_font_awesome->prefix`
-The prefix (e.g. "icon" or "fa") that should be used with the selected version of Font Awesome.
+The prefix (e.g. "icon-" or "fa-") that should be used with the selected version of Font Awesome.
 
 `$better_font_awesome->icons`
 An alphabetical array of all available icons based on the selected version of Font Awesome.
