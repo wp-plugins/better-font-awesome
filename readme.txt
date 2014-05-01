@@ -4,7 +4,7 @@ Tags: better, font, awesome, icon, bootstrap, fontstrap, cdn, shortcode
 Donate link: http://mightyminnow.com
 Requires at least: 3.0
 Tested up to: 3.9
-Stable tag: 0.9.3
+Stable tag: 0.9.4
 License: GPLv2+
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,11 +32,15 @@ All settings can be adjusted via **Settings &rarr; Better Font Awesome**.
 Better Font Awesome can be used in 3 different ways: shortcode, HTML, and TinyMCE
 
 = 1. Shortcode =
-`[icon name="flag" class="2x spin border" space="false"]`
+`[icon name="flag" class="2x spin border" space="true"]`
 
-The `name` attribute is simply the name of the icon, and the `class` attribute can include any of the available Font Awesome classes listed on the Font Awesome [Examples Page](http://fortawesome.github.io/Font-Awesome/examples/ "Font Awesome Examples"). The optional `space` attribute can be set to "false" to omit the space that is included after the icon by default.
+The **`name`** attribute is simply the name of the icon (see note below on prefixes, which are totally optional).
 
-Prefixes (`icon-` and `fa-`) are not necessary for shortcode usage. What's great is that Better Font Awesome will automatically remove and replace prefixes depending on the Font Awesome version you choose. So if you have existing Font Awesome shortcodes *with prefixes* (from other plugins, for example), they'll still work just fine. 
+The **`class`** attribute can include any of the available Font Awesome classes listed on the Font Awesome [Examples Page](http://fortawesome.github.io/Font-Awesome/examples/ "Font Awesome Examples").
+
+The **`space`** attribute (optional) can be used to include a `&amp;nbsp;` within the generated `<i>` element.
+
+**Prefixes** (`icon-` and `fa-`) are not necessary for shortcode usage! What's great is that Better Font Awesome will automatically remove and replace prefixes depending on the Font Awesome version you choose. So if you have existing Font Awesome shortcodes *with prefixes* (from other plugins, for example), they'll still work just fine. 
 
 That means that the following shortcodes will all work, regardless of what version of Font Awesome you choose:
 `[icon name="flag" class="2x spin border"]`
@@ -108,6 +112,10 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 == Changelog ==
 
+= 0.9.4 =
+* Switched default &nbsp; being output. Now the default "space" attribute is false, and can be set to true to optionally include a space.
+* PLEASE NOTE: this will affect existing shortcodes.
+
 = 0.9.3 =
 * Fixed admin-styles.css bug that was applying FontAwesome font-face outside TinyMCE
 * Print JS variables in front-end to aid developers
@@ -124,6 +132,10 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 
 == Upgrade Notice ==
+
+= 0.9.4 =
+* Switched default &nbsp; being output. Now the default "space" attribute is false, and can be set to true to optionally include a space.
+* PLEASE NOTE: this will affect existing shortcodes.
 
 = 0.9.3 =
 * Fixed admin-styles.css bug that was applying FontAwesome font-face outside TinyMCE
