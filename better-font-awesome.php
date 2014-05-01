@@ -3,7 +3,7 @@
  * Plugin Name: Better Font Awesome
  * Plugin URI: http://wordpress.org/plugins/better-font-awesome
  * Description: The better Font Awesome icon plugin for Wordpress.
- * Version: 0.9.3
+ * Version: 0.9.4
  * Author: Mickey Kay
  * Author URI: mickey@mickeykaycreative.com
  * License:     GPLv2+
@@ -305,7 +305,7 @@ class BetterFontAwesome {
 
 		// Include for backwards compatibility with Font Awesome More Icons plugin
 		$title = $title ? 'title="' . $title . '" ' : '';
-		$space = 'false' == $space ? '' : '&nbsp;';
+		$space = 'true' == $space ? '&nbsp;' : '';
         $size = $size ? ' '. $this->prefix . $size : '';
 
 		// Remove "icon-" and "fa-" from name
