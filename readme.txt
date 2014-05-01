@@ -38,7 +38,7 @@ The **`name`** attribute is simply the name of the icon (see note below on prefi
 
 The **`class`** attribute can include any of the available Font Awesome classes listed on the Font Awesome [Examples Page](http://fortawesome.github.io/Font-Awesome/examples/ "Font Awesome Examples").
 
-The **`space`** attribute (optional) can be used to include a `&amp;nbsp;` within the generated `<i>` element.
+The **`space`** attribute (optional) can be used to include a `&nbsp;` within the generated `<i>` element.
 
 **Prefixes** (`icon-` and `fa-`) are not necessary for shortcode usage! What's great is that Better Font Awesome will automatically remove and replace prefixes depending on the Font Awesome version you choose. So if you have existing Font Awesome shortcodes *with prefixes* (from other plugins, for example), they'll still work just fine. 
 
