@@ -112,6 +112,11 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 == Changelog ==
 
+= 0.9.5 =
+* Added ability to choose which CDN to use.
+* Added `unprefixed_class` shortcode attribute to allow for unprefixed shortcodes.
+* Updated prefixes to now return just the prefix without the dash (-).
+
 = 0.9.4 =
 * Switched default &nbsp; being output. Now the default "space" attribute is false, and can be set to true to optionally include a space.
 * PLEASE NOTE: this will affect existing shortcodes.
@@ -132,6 +137,11 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 
 == Upgrade Notice ==
+
+= 0.9.5 =
+* Added ability to choose which CDN to use.
+* Added `unprefixed_class` shortcode attribute to allow for unprefixed shortcodes.
+* Updated prefixes to now return just the prefix without the dash (-).
 
 = 0.9.4 =
 * Switched default &nbsp; being output. Now the default "space" attribute is false, and can be set to true to optionally include a space.
