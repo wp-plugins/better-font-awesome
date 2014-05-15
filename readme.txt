@@ -17,13 +17,13 @@ Better Font Awesome gives you easy access to the full [Font Awesome](http://fort
 
 = Features =
 
-* **Choose your version** - automatically checks the [Font Awesome CDN](http://www.bootstrapcdn.com/#fontawesome_tab "Font Awesome CDN") for all available versions, and lets you choose which one you want to use from a simple drop down menu. You also have the option to choose "Latest," which means the plugin will automatically switch to the latest version of Font Awesome as soon as it's released.
+* **Choose your version** - automatically checks for all available versions of Font Awesome, and lets you choose which one you want to use from a simple drop down menu. You also have the option to choose "Latest," which means the plugin will automatically switch to the latest version of Font Awesome as soon as it's released.
 
 * **Backwards compatible** - shortcode output is automatically updated depending on which version you choose, meaning that you can switch versions without having to modify your shortcodes.
 
 * **Compatible with other plugins** - designed to work with shortcodes generated with plugins like [Font Awesome Icons](http://wordpress.org/plugins/font-awesome/ "Font Awesome Icons"), [Font Awesome More Icons](https://wordpress.org/plugins/font-awesome-more-icons/ "Font Awesome More Icons"), and [Font Awesome Shortcodes](https://wordpress.org/plugins/font-awesome-shortcodes/), so you can switch to Better Font Awesome and your existing shortcodes will still work.
 
-* **CDN speeds** - utilizes CSS &amp; font files hosted by the excellent [Bootstrap CDN](http://www.bootstrapcdn.com/ "Bootstrap CDN"), which means super-fast load times.
+* **CDN speeds** - choose between the lightning quick [jsDelivr](http://www.jsdelivr.com/#!fontawesome) and [Bootstrap](http://www.bootstrapcdn.com/) CDNs, for super-fast loading of Font Awesome CSS.
 
 = Settings =
 All settings can be adjusted via **Settings &rarr; Better Font Awesome**.
