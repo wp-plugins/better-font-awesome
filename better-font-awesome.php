@@ -2,8 +2,8 @@
 /*
  * Plugin Name: Better Font Awesome
  * Plugin URI: http://wordpress.org/plugins/better-font-awesome
- * Description: The better Font Awesome icon plugin for Wordpress.
- * Version: 0.9.4
+ * Description: The ultimate Font Awesome icon plugin for Wordpress.
+ * Version: 0.9.5
  * Author: Mickey Kay
  * Author URI: mickey@mickeykaycreative.com
  * License:     GPLv2+
@@ -12,29 +12,7 @@
  */
 
 /**
- * Copyright (c) 2014 Mickey Kay & MIGHTYminnow (email : mickey@mickeykaycreative.com)
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License, version 2 or, at
- * your discretion, any later version, as published by the Free
- * Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
-
-/*--------------------------------------------*
- * Titan Framework
- *--------------------------------------------*/
-/*
- * When using the embedded framework, use it only if the framework
- * plugin isn't activated.
+ * Load Titan Framework
  */
  
 // Don't do anything when we're activating a plugin to prevent errors
@@ -62,6 +40,17 @@ if ( $useEmbeddedFramework && ! class_exists( 'TitanFramework' ) ) {
     require_once( plugin_dir_path( __FILE__ ) . 'Titan-Framework/titan-framework.php' );
 }
 
+add_action( 'plugins_loaded', 'bfa_start' );
+/**
+ * Initialize Better Font Awesome plugin.
+ *
+ * @since 0.9.5
+ */
+function bfa_start() {
+	global $better_font_awesome;
+	$better_font_awesome = new BetterFontAwesome();
+}
+
 /**
  * Better Font Awesome plugin class
  */
@@ -78,7 +67,7 @@ class BetterFontAwesome {
 	 * Variables
 	 *--------------------------------------------*/
 	public $prefix, $icons;
-	protected $cdn_data, $titan, $version, $minified;
+	protected $cdn_data, $titan, $cdn, $version, $minified;
 
 	/**
 	 * Constructor
@@ -105,8 +94,7 @@ class BetterFontAwesome {
 		// Do scripts and styles - on 11 to make sure styles/scripts load after other plugins
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_scripts_and_styles' ), 11 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts_and_styles' ), 11 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'custom_admin_css' ), 11 );
-
+		add_action( 'admin_enqueue_scripts', array( $this, 'register_admin_scripts_and_styles' ), 11 );
 	}
   
 	/**
@@ -140,10 +128,9 @@ class BetterFontAwesome {
 
 		// Add Font Awesome stylesheet to TinyMCE
 		add_editor_style( $this->stylesheet_url );
-
 	}
 
-	/*
+	/**
 	 * Runs when admin is initialized
 	 */
 	function admin_init() {
@@ -165,17 +152,17 @@ class BetterFontAwesome {
 		$this->cdn_data = $decoded_data[0];
 	}
 
-	/*
+	/**
      * Create list of available icons based on selected version of Font Awesome
      */
     function get_icons() {
     	// Get Font Awesome CSS
 	    if( isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] == "on" )
-		    $prefix = 'https:';
+		    $protocol = 'https:';
 		else
-		    $prefix = 'http:';
+		    $protocol = 'http:';
 
-		$remote_data = wp_remote_get( $prefix . $this->stylesheet_url );
+		$remote_data = wp_remote_get( $protocol . $this->stylesheet_url );
 	    $css = wp_remote_retrieve_body( $remote_data );
 	 
 	 	// Get all CSS selectors that have a content: pseudo-element rule
@@ -193,16 +180,16 @@ class BetterFontAwesome {
 	    }
 
 	    // Alphabetize & join with comma for use in JS array
-		sort( $this->icons );
-				
+		sort( $this->icons );	
     }
 
-	/*
-	 * Set the Font Awesome stylesheet url to use based on the settings
+	/**
+	 * Set the Font Awesome stylesheet url to use based on the settings.
 	 */
 	function setup_global_variables() {
 		$this->version = $this->titan->getOption( 'version' );
 		$this->minified = $this->titan->getOption( 'minified' );
+		$this->cdn = $this->titan->getOption( 'cdn' );
 
 		// Get latest version if need be
 		if ( 'latest' == $this->version )
@@ -210,18 +197,23 @@ class BetterFontAwesome {
 
 		// Set stylesheet URL
 		$stylesheet = $this->minified ? '/css/font-awesome.min.css' : '/css/font-awesome.css';
-		$this->stylesheet_url = '//netdna.bootstrapcdn.com/font-awesome/' . $this->version . $stylesheet;
+		$cdn_base_url = ( 'jsdelivr' == $this->cdn ) ? '//cdn.jsdelivr.net/fontawesome/' : '//netdna.bootstrapcdn.com/font-awesome/';
+
+		$this->stylesheet_url = $cdn_base_url . $this->version . $stylesheet;
 
 		// Set proper prefix based on version
 		if ( 0 <= version_compare( $this->version, '4' ) )
-			$this->prefix = 'fa-';
+			$this->prefix = 'fa';
 		elseif ( 0 <= version_compare( $this->version, '3' ) )
-			$this->prefix = 'icon-';
+			$this->prefix = 'icon';
 
 		// Setup icons for selected version of Font Awesome
 		$this->get_icons();
 	}
 
+	/**
+	 * Set up admin options page
+	 */
 	function do_options_page() {
 
 		// Setup available versions
@@ -245,6 +237,18 @@ class BetterFontAwesome {
 		    'desc' => __( 'Select the version of Font Awesome you would like to use. Visit the <a href="http://fontawesome.io/" target="_blank">Font Awesome website</a> for more information.', 'better-font-awesome') ,
 		    'options' => $versions,
 		    'default' => $this->cdn_data->lastversion,
+		) );
+
+		$optionsPage->createOption( array(
+		    'name' => __( 'CDN', 'better-font-awesome' ),
+		    'id' => 'cdn',
+		    'type' => 'select',
+		    'desc' => __( 'Select the CDN from which to load Font Awesome.', 'better-font-awesome') ,
+		    'options' => array(
+		    	'jsdelivr' => 'jsDelivr',
+		    	'bootstrap' => 'Bootstrap'
+		    	),
+		    'default' => 'jsdelivr',
 		) );
 
 		$optionsPage->createOption( array(
@@ -290,6 +294,8 @@ class BetterFontAwesome {
 	 * Example:
 	 * 	[icon name="flag" class="fw 2x spin"]
 	 *
+	 * @since  0.9.0
+	 *
 	 * @param   array $atts Shortcode attributes
 	 * @return  string <i> Font Awesome output
 	 */
@@ -297,6 +303,7 @@ class BetterFontAwesome {
 		extract(shortcode_atts(array(
 			'name' => '',
 			'class' => '',
+			'unprefixed_class' => '',
 			'title'     => '', /* For compatibility with other plugins */
             'size'      => '', /* For compatibility with other plugins */
             'space'     => '',
@@ -316,7 +323,7 @@ class BetterFontAwesome {
 		$name = str_replace( 'fa-', '', $name );
 		
 		// Add prefix to name
-		$icon_name = $this->prefix . $name;
+		$icon_name = $this->prefix . '-' . $name;
 
 		// Remove "icon-" and "fa-" from classes
 		$class = str_replace( 'icon-', '', $class );
@@ -327,37 +334,44 @@ class BetterFontAwesome {
 		$class = preg_replace('/\s{3,}/',' ', $class );
 
 		// Add prefix to each class (separated by space)
-		$class = ' ' . $this->prefix . str_replace( ' ', ' ' . $this->prefix, $class );
+		$class = $class ? ' ' . $this->prefix . '-' . str_replace( ' ', ' ' . $this->prefix . '-', $class ) : '';
+
+		// Add unprefixed classes
+		$class .= $unprefixed_class ? ' ' . $unprefixed_class : '';
 
 		return '<i class="fa ' . $icon_name . $class . $size . '" ' . $title . '>' . $space . '</i>';
 	}
   
 	/**
-	 * Registers and enqueues stylesheets for the administration panel and the
-	 * public facing site.
+	 * Register public scripts and styles.
 	 */
 	function register_scripts_and_styles() {
+		global $wp_styles;
+						
 		// Deregister any existing Font Awesome CSS (including Titan Framework)
 		if ( $this->titan->getOption( 'remove_existing_fa' ) ) {
-			wp_dequeue_style( 'tf-font-awesome' );
-			wp_dequeue_style( 'font-awesome' );
+			// Loop through all registered styles and remove any that appear to be font-awesome
+			foreach ( $wp_styles->registered as $script => $details ) {
+				if ( strpos( $script, 'fontawesome' ) !== false || strpos( $script, 'font-awesome' ) !== false )
+					wp_dequeue_style( $script );
+			}
 		}
 
 		// Enqueue Font Awesome CSS
-		wp_register_style( 'font-awesome', $this->stylesheet_url, '', $this->version );
-		wp_enqueue_style( 'font-awesome' );
+		wp_register_style( 'bfa-font-awesome', $this->stylesheet_url, '', $this->version );
+		wp_enqueue_style( 'bfa-font-awesome' );
 	}
 
-	/*
-	 * Load admin CSS
+	/**
+	 * Register admin scripts and styles.
 	 */
-	function custom_admin_css() {
+	function register_admin_scripts_and_styles() {
 		wp_enqueue_style( 'bfa-admin-styles', plugins_url( 'inc/css/admin-styles.css', __FILE__ ) );
 	}
 
 	/**
-	 * Load TinyMCE Font Awesome dropdown plugin
-	*/
+	 * Load TinyMCE Font Awesome dropdown plugin.
+	 */
 	function register_tinymce_plugin( $plugin_array ) {
         global $tinymce_version;
 
@@ -371,8 +385,8 @@ class BetterFontAwesome {
         return $plugin_array;
     }
 
-    /*
-     * Add TinyMCE dropdown element
+    /**
+     * Add TinyMCE dropdown element.
      */
     function add_tinymce_buttons( $buttons ) {
         array_push( $buttons, 'bfaSelect' );
@@ -381,7 +395,7 @@ class BetterFontAwesome {
     }
 
     /**
-	 * Add PHP variables in head for use by TinyMCE JavaScript
+	 * Add PHP variables in head for use by TinyMCE JavaScript.
 	 */
 	function admin_head_variables() {
 		$icon_list = implode( ",", $this->icons );
@@ -398,5 +412,3 @@ class BetterFontAwesome {
 	}
   
 }
-global $better_font_awesome;
-$better_font_awesome = new BetterFontAwesome();
