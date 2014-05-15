@@ -3,8 +3,8 @@ Contributors: McGuive7, MIGHTYminnow
 Tags: better, font, awesome, icon, bootstrap, fontstrap, cdn, shortcode
 Donate link: http://mightyminnow.com
 Requires at least: 3.0
-Tested up to: 3.9.1
-Stable tag: 0.9.5
+Tested up to: 3.9
+Stable tag: 0.9.4
 License: GPLv2+
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,13 +17,13 @@ Better Font Awesome gives you easy access to the full [Font Awesome](http://fort
 
 = Features =
 
-* **Choose your version** - automatically checks the [Font Awesome CDN](http://www.bootstrapcdn.com/#fontawesome_tab "Font Awesome CDN") for all available versions, and lets you choose which one you want to use from a simple drop down menu. You also have the option to choose "Latest," which means the plugin will automatically switch to the latest version of Font Awesome as soon as it's released.
+* **Choose your version** - automatically checks for all available versions of Font Awesome, and lets you choose which one you want to use from a simple drop down menu. You also have the option to choose "Latest," which means the plugin will automatically switch to the latest version of Font Awesome as soon as it's released.
 
 * **Backwards compatible** - shortcode output is automatically updated depending on which version you choose, meaning that you can switch versions without having to modify your shortcodes.
 
 * **Compatible with other plugins** - designed to work with shortcodes generated with plugins like [Font Awesome Icons](http://wordpress.org/plugins/font-awesome/ "Font Awesome Icons"), [Font Awesome More Icons](https://wordpress.org/plugins/font-awesome-more-icons/ "Font Awesome More Icons"), and [Font Awesome Shortcodes](https://wordpress.org/plugins/font-awesome-shortcodes/), so you can switch to Better Font Awesome and your existing shortcodes will still work.
 
-* **CDN speeds** - utilizes CSS &amp; font files hosted by the excellent [Bootstrap CDN](http://www.bootstrapcdn.com/ "Bootstrap CDN"), which means super-fast load times.
+* **CDN speeds** - choose between the lightning quick [jsDelivr](http://www.jsdelivr.com/#!fontawesome) and [Bootstrap](http://www.bootstrapcdn.com/) CDNs, for super-fast loading of Font Awesome CSS.
 
 = Settings =
 All settings can be adjusted via **Settings &rarr; Better Font Awesome**.
@@ -32,13 +32,11 @@ All settings can be adjusted via **Settings &rarr; Better Font Awesome**.
 Better Font Awesome can be used in 3 different ways: shortcode, HTML, and TinyMCE
 
 = 1. Shortcode =
-`[icon name="flag" class="2x spin border" unprefixed_class="my-custom-class" space="true"]`
+`[icon name="flag" class="2x spin border" space="true"]`
 
 The **`name`** attribute is simply the name of the icon (see note below on prefixes, which are totally optional).
 
-The **`class`** attribute can include any of the available Font Awesome classes listed on the Font Awesome [Examples Page](http://fortawesome.github.io/Font-Awesome/examples/ "Font Awesome Examples"). The appropriate prefix (`fa-` or `icon-`) will be automatically added.
-
-The **`unprefixed_class`** attribute is where you can inlude classes that won't be prefixed.
+The **`class`** attribute can include any of the available Font Awesome classes listed on the Font Awesome [Examples Page](http://fortawesome.github.io/Font-Awesome/examples/ "Font Awesome Examples").
 
 The **`space`** attribute (optional) can be used to include a `&nbsp;` within the generated `<i>` element.
 
@@ -68,7 +66,7 @@ Better Font Awesome also provides you with an easy-to-use drop down menu in the 
 Please feel free to integrate Better Font Awesome in your plugin or theme! If you want to hook into Better Font Awesome, the best way is via the global `$better_font_awesome` object, which has a few public properties that might be useful:
 
 `$better_font_awesome->prefix`
-The prefix (e.g. "icon" or "fa") that should be used with the selected version of Font Awesome.
+The prefix (e.g. "icon-" or "fa-") that should be used with the selected version of Font Awesome.
 
 `$better_font_awesome->icons`
 An alphabetical array of all available icons based on the selected version of Font Awesome.
@@ -114,11 +112,6 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 == Changelog ==
 
-= 0.9.5 =
-* Added ability to choose which CDN to use.
-* Added `unprefixed_class` shortcode attribute to allow for unprefixed shortcodes.
-* Updated prefixes to now return just the prefix without the dash (-).
-
 = 0.9.4 =
 * Switched default &nbsp; being output. Now the default "space" attribute is false, and can be set to true to optionally include a space.
 * PLEASE NOTE: this will affect existing shortcodes.
@@ -139,11 +132,6 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 
 == Upgrade Notice ==
-
-= 0.9.5 =
-* Added ability to choose which CDN to use.
-* Added `unprefixed_class` shortcode attribute to allow for unprefixed shortcodes.
-* Updated prefixes to now return just the prefix without the dash (-).
 
 = 0.9.4 =
 * Switched default &nbsp; being output. Now the default "space" attribute is false, and can be set to true to optionally include a space.
