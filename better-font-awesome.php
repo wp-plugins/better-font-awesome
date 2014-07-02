@@ -4,7 +4,7 @@
  * Plugin URI: http://wordpress.org/plugins/better-font-awesome
  * Description: The ultimate Font Awesome icon plugin for Wordpress.
  * Version: 0.9.6
- * Author: Mickey Kay
+ * Author: MIGHTYminnow
  * Author URI: mickey@mickeykaycreative.com
  * License:     GPLv2+
  * Text Domain: bfa
@@ -157,12 +157,9 @@ class BetterFontAwesome {
      */
     function get_icons() {
     	// Get Font Awesome CSS
-	    if( isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] == "on" )
-		    $protocol = 'https:';
-		else
-		    $protocol = 'http:';
+	    
 
-		$remote_data = wp_remote_get( $protocol . $this->stylesheet_url );
+		$remote_data = wp_remote_get( '//s' . $this->stylesheet_url );
 	    $css = wp_remote_retrieve_body( $remote_data );
 	 
 	 	// Get all CSS selectors that have a content: pseudo-element rule
