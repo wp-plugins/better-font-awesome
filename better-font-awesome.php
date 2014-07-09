@@ -3,7 +3,7 @@
  * Plugin Name: Better Font Awesome
  * Plugin URI: http://wordpress.org/plugins/better-font-awesome
  * Description: The ultimate Font Awesome icon plugin for Wordpress.
- * Version: 0.9.6
+ * Version: 0.9.7
  * Author: MIGHTYminnow
  * Author URI: mickey@mickeykaycreative.com
  * License:     GPLv2+
@@ -157,27 +157,31 @@ class BetterFontAwesome {
      */
     function get_icons() {
     	// Get Font Awesome CSS
-	    
+		if ( is_ssl() ) {
+			$prefix = 'https:';
+		} else {
+			$prefix = 'http:';
+		}
 
-		$remote_data = wp_remote_get( '//s' . $this->stylesheet_url );
-	    $css = wp_remote_retrieve_body( $remote_data );
-	 
-	 	// Get all CSS selectors that have a content: pseudo-element rule
-	 	preg_match_all('/(\.[^}]*)\s*{\s*(content:)/s', $css, $matches );
-	    $selectors = $matches[1];
+		$remote_data = wp_remote_get( $prefix . $this->stylesheet_url );
+		$css = wp_remote_retrieve_body( $remote_data );
 
-	    // Select all icon- and fa- selectors from and split where there are commas
-	    foreach ( $selectors as $selector ) {
-	    	preg_match_all('/\.(icon-|fa-)([^,]*)\s*:before/s', $selector, $matches );
-	    	$clean_selectors = $matches[2];
+		// Get all CSS selectors that have a content: pseudo-element rule
+		preg_match_all( '/(\.[^}]*)\s*{\s*(content:)/s', $css, $matches );
+		$selectors = $matches[1];
 
-	    	// Create array of selectors
-	   		foreach( $clean_selectors as $clean_selector )
-	   			$this->icons[] = $clean_selector;
-	    }
+		// Select all icon- and fa- selectors from and split where there are commas
+		foreach ( $selectors as $selector ) {
+			preg_match_all( '/\.(icon-|fa-)([^,]*)\s*:before/s', $selector, $matches );
+			$clean_selectors = $matches[2];
 
-	    // Alphabetize & join with comma for use in JS array
-		sort( $this->icons );	
+			// Create array of selectors
+			foreach ( $clean_selectors as $clean_selector )
+				$this->icons[] = $clean_selector;
+		}
+
+		// Alphabetize & join with comma for use in JS array
+		sort( $this->icons );
     }
 
 	/**

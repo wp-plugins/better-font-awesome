@@ -3,8 +3,8 @@ Contributors: McGuive7, MIGHTYminnow
 Tags: better, font, awesome, icon, bootstrap, fontstrap, cdn, shortcode
 Donate link: http://mightyminnow.com
 Requires at least: 3.0
-Tested up to: 3.9
-Stable tag: 0.9.6
+Tested up to: 3.9.1
+Stable tag: 0.9.7
 License: GPLv2+
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -112,6 +112,9 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 == Changelog ==
 
+= 0.9.7 =
+* Fixed bug causing warning notices and missing icons.
+
 = 0.9.6 =
 * Fixed missing icon previews in WordPress 3.8 and below.
 
@@ -140,6 +143,9 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 
 == Upgrade Notice ==
+
+= 0.9.7 =
+* Fixed bug causing warning notices and missing icons.
 
 = 0.9.6 =
 * Fixed missing icon previews in WordPress 3.8 and below.
