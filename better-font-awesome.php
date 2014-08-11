@@ -1,415 +1,558 @@
 <?php
-/*
- * Plugin Name: Better Font Awesome
- * Plugin URI: http://wordpress.org/plugins/better-font-awesome
- * Description: The ultimate Font Awesome icon plugin for Wordpress.
- * Version: 0.9.7
- * Author: MIGHTYminnow
- * Author URI: mickey@mickeykaycreative.com
- * License:     GPLv2+
- * Text Domain: bfa
- * Domain Path: /languages
- */
-
 /**
- * Load Titan Framework
- */
- 
-// Don't do anything when we're activating a plugin to prevent errors
-// on redeclaring Titan classes
-if ( ! empty( $_GET['action'] ) && ! empty( $_GET['plugin'] ) ) {
-    if ( $_GET['action'] == 'activate' ) {
-        return;
-    }
-}
-// Check if the framework plugin is activated
-$useEmbeddedFramework = true;
-$activePlugins = get_option('active_plugins');
-if ( is_array( $activePlugins ) ) {
-    foreach ( $activePlugins as $plugin ) {
-        if ( is_string( $plugin ) ) {
-            if ( stripos( $plugin, '/Titan-Framework.php' ) !== false ) {
-                $useEmbeddedFramework = false;
-                break;
-            }
-        }
-    }
-}
-// Use the embedded Titan Framework
-if ( $useEmbeddedFramework && ! class_exists( 'TitanFramework' ) ) {
-    require_once( plugin_dir_path( __FILE__ ) . 'Titan-Framework/titan-framework.php' );
-}
-
-add_action( 'plugins_loaded', 'bfa_start' );
-/**
- * Initialize Better Font Awesome plugin.
+ * Better Font Awesome
  *
- * @since 0.9.5
+ * @package   Better Font Awesome
+ * @author    MIGHTYminnow & Mickey Kay <mickey@mickeykaycreative.com>
+ * @license   GPL-2.0+
+ * @link      http://wordpress.org/plugins/better-font-awesome
+ * @copyright 2014 MIGHTYminnow & Mickey Kay
+ *
+ * @wordpress-plugin
+ * Plugin Name:       Better Font Awesome
+ * Plugin URI:        http://wordpress.org/plugins/better-font-awesome
+ * Description:       The ultimate Font Awesome icon plugin for WordPress.
+ * Version:           0.10.0.beta
+ * Author:            MIGHTYminnow & Mickey Kay
+ * Author URI:        mickey@mickeykaycreative.com
+ * License:           GPLv2+
+ * Text Domain:       bfa
+ * Domain Path:       /languages
+ * GitHub Plugin URI: https://github.com/MickeyKay/better-font-awesome
+ */
+
+//register_activation_hook( __FILE__, array( 'Better_Font_Awesome_Plugin', 'activation_check' ) );
+
+add_action( 'plugins_loaded', 'bfa_start', 5 );
+/**
+ * Initialize the Better Font Awesome plugin.
+ *
+ * Start up Better Font Awesome early on the plugins_loaded hook, priority 5, in
+ * order to load it before any other plugins that might also use the Better Font
+ * Awesome Library.
+ *
+ * @since  0.9.5
  */
 function bfa_start() {
-	global $better_font_awesome;
-	$better_font_awesome = new BetterFontAwesome();
+    global $better_font_awesome;
+    $better_font_awesome = Better_Font_Awesome_Plugin::get_instance();
 }
 
 /**
  * Better Font Awesome plugin class
+ *
+ * @since  0.9.0
  */
-class BetterFontAwesome {
+class Better_Font_Awesome_Plugin {
 
-	/*--------------------------------------------*
-	 * Constants
-	 *--------------------------------------------*/
-	const name = 'Better Font Awesome';
-	const slug = 'better-font-awesome';
-
-
-	/*--------------------------------------------*
-	 * Variables
-	 *--------------------------------------------*/
-	public $prefix, $icons;
-	protected $cdn_data, $titan, $cdn, $version, $minified;
-
-	/**
-	 * Constructor
-	 */
-	function __construct() {
-		// Register an activation hook for the plugin
-		register_activation_hook( __FILE__, array( $this, 'install' ) );
-
-		// Setup Titan instance
-		$this->titan = TitanFramework::getInstance( 'better-font-awesome' );
-
-		// Get CDN data
-		$this->setup_cdn_data();
-
-		// Do options page
-		$this->do_options_page();
-
-		// Hook up to the init action - on 11 to make sure it loads after other FA plugins
-		add_action( 'init', array( $this, 'init' ), 11 );
-
-		// Admin init
-		add_action( 'admin_head', array( &$this, 'admin_init' ) );
-
-		// Do scripts and styles - on 11 to make sure styles/scripts load after other plugins
-		add_action( 'wp_enqueue_scripts', array( $this, 'register_scripts_and_styles' ), 11 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts_and_styles' ), 11 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'register_admin_scripts_and_styles' ), 11 );
-	}
-  
-	/**
-	 * Runs when the plugin is activated
-	 */  
-	function install() {
-		// do not generate any output here
-	}
-
-	/**
-	 * Runs when the plugin is initialized
-	 */
-	function init() {
-		// Setup localization
-		load_plugin_textdomain( self::slug, false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-
-		// Remove existing [icon] shortcodes added via other plugins/themes
-		if ( $this->titan->getOption( 'remove_existing_fa' ) ) {
-			remove_shortcode('icon');
-		}
-
-		// Register the shortcode [icon]
-		add_shortcode( 'icon', array( $this, 'render_shortcode' ) );
-
-		// Set Font Awesome variables (stylesheet url, prefix, etc)
-		$this->setup_global_variables();
-
-        // Add PHP variables in head for use by TinyMCY JavaScript
-        add_action( 'wp_head', array( $this, 'admin_head_variables' ) );
-        add_action( 'admin_head', array( $this, 'admin_head_variables' ) );
-
-		// Add Font Awesome stylesheet to TinyMCE
-		add_editor_style( $this->stylesheet_url );
-	}
-
-	/**
-	 * Runs when admin is initialized
-	 */
-	function admin_init() {
-        if ( ! current_user_can('edit_posts') && ! current_user_can('edit_pages') )
-            return;     
-
-        if ( get_user_option('rich_editing') == 'true' ) {  
-            add_filter( 'mce_external_plugins', array( $this, 'register_tinymce_plugin' ) );
-	        add_filter( 'mce_buttons', array( $this, 'add_tinymce_buttons' ) );
-        }  
-    }  
-
-	/**
-	 * Get CDN data and prefix based on selected version
-	 */
-	function setup_cdn_data() {
-		$remote_data = wp_remote_get( 'http://api.jsdelivr.com/v1/bootstrap/libraries/font-awesome/' );
-		$decoded_data = json_decode( wp_remote_retrieve_body( $remote_data ) );
-		$this->cdn_data = $decoded_data[0];
-	}
-
-	/**
-     * Create list of available icons based on selected version of Font Awesome
+    /**
+     * Plugin slug.
+     *
+     * @since  0.9.0
+     *
+     * @var    string
      */
-    function get_icons() {
-    	// Get Font Awesome CSS
-		if ( is_ssl() ) {
-			$prefix = 'https:';
-		} else {
-			$prefix = 'http:';
-		}
+    const SLUG = 'better-font-awesome';
 
-		$remote_data = wp_remote_get( $prefix . $this->stylesheet_url );
-		$css = wp_remote_retrieve_body( $remote_data );
+    /**
+     * The Better Font Awesome Library object.
+     *
+     * @since  0.1.0
+     *
+     * @var    Better_Font_Awesome_Library
+     */
+    private $bfa_lib;
 
-		// Get all CSS selectors that have a content: pseudo-element rule
-		preg_match_all( '/(\.[^}]*)\s*{\s*(content:)/s', $css, $matches );
-		$selectors = $matches[1];
+    /**
+     * Path to the Better Font Awesome Library main file.
+     *
+     * @since  0.1.0
+     *
+     * @var    Better_Font_Awesome_Library
+     */
+    private $bfa_lib_file_path;
 
-		// Select all icon- and fa- selectors from and split where there are commas
-		foreach ( $selectors as $selector ) {
-			preg_match_all( '/\.(icon-|fa-)([^,]*)\s*:before/s', $selector, $matches );
-			$clean_selectors = $matches[2];
+    /**
+     * Plugin display name.
+     *
+     * @since  0.9.0
+     *
+     * @var    string
+     */
+    private $plugin_display_name;
 
-			// Create array of selectors
-			foreach ( $clean_selectors as $clean_selector )
-				$this->icons[] = $clean_selector;
-		}
+    /**
+     * Plugin option name.
+     *
+     * @since  0.9.0
+     *
+     * @var    string
+     */
+    protected $option_name;
 
-		// Alphabetize & join with comma for use in JS array
-		sort( $this->icons );
-    }
+    /**
+     * Plugin options.
+     *
+     * @since  0.9.0
+     *
+     * @var    string
+     */
+    protected $options;
 
-	/**
-	 * Set the Font Awesome stylesheet url to use based on the settings.
-	 */
-	function setup_global_variables() {
-		$this->version = $this->titan->getOption( 'version' );
-		$this->minified = $this->titan->getOption( 'minified' );
-		$this->cdn = $this->titan->getOption( 'cdn' );
+    /**
+     * Default options.
+     *
+     * Used for setting uninitialized plugin options.
+     *
+     * @since  0.9.0
+     *
+     * @var    array
+     */
+    protected $option_defaults = array(
+        'version'            => 'latest',
+        'minified'           => 1,
+        'remove_existing_fa' => '',
+    );
 
-		// Get latest version if need be
-		if ( 'latest' == $this->version )
-			$this->version = $this->cdn_data->lastversion;
+    /**
+     * Instance of this class.
+     *
+     * @since  0.9.0
+     *
+     * @var    Better_Font_Awesome_Plugin
+     */
+    protected static $instance = null;
 
-		// Set stylesheet URL
-		$stylesheet = $this->minified ? '/css/font-awesome.min.css' : '/css/font-awesome.css';
-		$cdn_base_url = ( 'jsdelivr' == $this->cdn ) ? '//cdn.jsdelivr.net/fontawesome/' : '//netdna.bootstrapcdn.com/font-awesome/';
 
-		$this->stylesheet_url = $cdn_base_url . $this->version . $stylesheet;
+    /**
+     * Returns the instance of this class, and initializes the instance if it
+     * doesn't already exist.
+     *
+     * @return  Better_Font_Awesome  The BFA object.
+     */
+    public static function get_instance( $args = '' ) {
+        static $instance = null;
+        if ( null === $instance ) {
+            $instance = new static( $args );
+        }
 
-		// Set proper prefix based on version
-		if ( 0 <= version_compare( $this->version, '4' ) )
-			$this->prefix = 'fa';
-		elseif ( 0 <= version_compare( $this->version, '3' ) )
-			$this->prefix = 'icon';
-
-		// Setup icons for selected version of Font Awesome
-		$this->get_icons();
-	}
-
-	/**
-	 * Set up admin options page
-	 */
-	function do_options_page() {
-
-		// Setup available versions
-		$versions[ 'latest' ] = __( 'Always Latest', 'better-font-awesome' ) . ' (' . $this->cdn_data->lastversion . ')';
-
-		foreach( $this->cdn_data->versions as $version ) {
-			// Exclude v2.0
-			if ( '2' != substr( $version, 0, 1 ) )
-				$versions[$version] = $version;
-		}
-
-		$optionsPage = $this->titan->createAdminPanel( array(
-		    'name' => __( 'Better Font Awesome', 'better-font-awesome'),
-		    'parent' => 'options-general.php',
-		) );
-
-		$optionsPage->createOption( array(
-		    'name' => __( 'Font Awesome version', 'better-font-awesome' ),
-		    'id' => 'version',
-		    'type' => 'select',
-		    'desc' => __( 'Select the version of Font Awesome you would like to use. Visit the <a href="http://fontawesome.io/" target="_blank">Font Awesome website</a> for more information.', 'better-font-awesome') ,
-		    'options' => $versions,
-		    'default' => $this->cdn_data->lastversion,
-		) );
-
-		$optionsPage->createOption( array(
-		    'name' => __( 'CDN', 'better-font-awesome' ),
-		    'id' => 'cdn',
-		    'type' => 'select',
-		    'desc' => __( 'Select the CDN from which to load Font Awesome.', 'better-font-awesome') ,
-		    'options' => array(
-		    	'jsdelivr' => 'jsDelivr',
-		    	'bootstrap' => 'Bootstrap'
-		    	),
-		    'default' => 'jsdelivr',
-		) );
-
-		$optionsPage->createOption( array(
-		    'name' => __( 'Use minified CSS', 'better-font-awesome' ),
-		    'id' => 'minified',
-		    'type' => 'checkbox',
-		    'desc' => __( 'Whether to include the minified version of the CSS (checked), or the unminified version (unchecked).', 'better-font-awesome' ),
-		    'default' => true,
-		) );
-
-		$optionsPage->createOption( array(
-		    'name' => __( 'Remove existing FA', 'better-font-awesome' ),
-		    'id' => 'remove_existing_fa',
-		    'type' => 'checkbox',
-		    'desc' => __( 'Remove Font Awesome CSS and shortcodes added by other plugins and themes. This may help if icons are not rendering properly.', 'better-font-awesome' ),
-		    'default' => false,
-		) );
-
-		$optionsPage->createOption( array(
-			'name' => __( 'Usage', 'better-font-awesome' ),
-		    'type' => 'note',
-		    'desc' => __( '
-		    		<b>Version 4</b>&nbsp;&nbsp;&nbsp;<small><a href="http://fontawesome.io/examples/">See all available classes &raquo;</a></small><br /><br />
-		    		<i class="icon-star fa fa-star"></i> <code>[icon name="star"]</code> or <code>&lt;i class="fa-star"&gt;&lt;/i&gt;</code><br /><br />
-		    		<i class="icon-star fa fa-star icon-2x fa-2x"></i> <code>[icon name="star" class="fa-2x"]</code> or <code>&lt;i class="fa-star fa-2x"&gt;&lt;/i&gt;</code><br /><br />
-		    		<i class="icon-star fa fa-star icon-2x fa-2x icon-border fa-border"></i> <code>[icon name="star" class="fa-2x fa-border"]</code> or <code>&lt;i class="fa-star fa-2x fa-border"&gt;&lt;/i&gt;</code><br /><br /><br />
-		    		<b>Version 3</b>&nbsp;&nbsp;&nbsp;<small><a href="http://fontawesome.io/3.2.1/examples/">See all available classes &raquo;</a></small><br /><br />
-		    		<i class="icon-star fa fa-star"></i> <code>[icon name="star"]</code> or <code>&lt;i class="icon-star"&gt;&lt;/i&gt;</code><br /><br />
-		    		<i class="icon-star fa fa-star icon-2x fa-2x"></i> <code>[icon name="star" class="icon-2x"]</code> or <code>&lt;i class="icon-star icon-2x"&gt;&lt;/i&gt;</code><br /><br />
-		    		<i class="icon-star fa fa-star icon-2x fa-2x icon-border fa-border"></i> <code>[icon name="star" class="icon-2x icon-border"]</code> or <code>&lt;i class="icon-star icon-2x icon-border"&gt;&lt;/i&gt;</code>
-
-		    		', 'better-font-awesome' ),
-		) );
-
-		$optionsPage->createOption( array(
-		    'type' => 'save',
-		) );
-	}
-
-	/**
-	 * Output [icon] shortcode
-	 *
-	 * Example:
-	 * 	[icon name="flag" class="fw 2x spin"]
-	 *
-	 * @since  0.9.0
-	 *
-	 * @param   array $atts Shortcode attributes
-	 * @return  string <i> Font Awesome output
-	 */
-	function render_shortcode( $atts ) {
-		extract(shortcode_atts(array(
-			'name' => '',
-			'class' => '',
-			'unprefixed_class' => '',
-			'title'     => '', /* For compatibility with other plugins */
-            'size'      => '', /* For compatibility with other plugins */
-            'space'     => '',
-			), $atts)
-		);
-
-		// Include for backwards compatibility with Font Awesome More Icons plugin
-		$title = $title ? 'title="' . $title . '" ' : '';
-		$space = 'true' == $space ? '&nbsp;' : '';
-        $size = $size ? ' '. $this->prefix . $size : '';
-
-		// Remove "icon-" and "fa-" from name
-		// This helps both:
-		// 	1. Incorrect shortcodes (when user includes full class name including prefix)
-		// 	2. Old shortcodes from other plugins that required prefixes
-		$name = str_replace( 'icon-', '', $name );
-		$name = str_replace( 'fa-', '', $name );
-		
-		// Add prefix to name
-		$icon_name = $this->prefix . '-' . $name;
-
-		// Remove "icon-" and "fa-" from classes
-		$class = str_replace( 'icon-', '', $class );
-		$class = str_replace( 'fa-', '', $class );
-		
-		// Remove extra spaces from class
-		$class = trim( $class );
-		$class = preg_replace('/\s{3,}/',' ', $class );
-
-		// Add prefix to each class (separated by space)
-		$class = $class ? ' ' . $this->prefix . '-' . str_replace( ' ', ' ' . $this->prefix . '-', $class ) : '';
-
-		// Add unprefixed classes
-		$class .= $unprefixed_class ? ' ' . $unprefixed_class : '';
-
-		return '<i class="fa ' . $icon_name . $class . $size . '" ' . $title . '>' . $space . '</i>';
-	}
-  
-	/**
-	 * Register public scripts and styles.
-	 */
-	function register_scripts_and_styles() {
-		global $wp_styles;
-						
-		// Deregister any existing Font Awesome CSS (including Titan Framework)
-		if ( $this->titan->getOption( 'remove_existing_fa' ) ) {
-			// Loop through all registered styles and remove any that appear to be font-awesome
-			foreach ( $wp_styles->registered as $script => $details ) {
-				if ( strpos( $script, 'fontawesome' ) !== false || strpos( $script, 'font-awesome' ) !== false )
-					wp_dequeue_style( $script );
-			}
-		}
-
-		// Enqueue Font Awesome CSS
-		wp_register_style( 'bfa-font-awesome', $this->stylesheet_url, '', $this->version );
-		wp_enqueue_style( 'bfa-font-awesome' );
-	}
-
-	/**
-	 * Register admin scripts and styles.
-	 */
-	function register_admin_scripts_and_styles() {
-		wp_enqueue_style( 'bfa-admin-styles', plugins_url( 'inc/css/admin-styles.css', __FILE__ ) );
-	}
-
-	/**
-	 * Load TinyMCE Font Awesome dropdown plugin.
-	 */
-	function register_tinymce_plugin( $plugin_array ) {
-        global $tinymce_version;
-
-        // >= TinyMCE v4 - include newer plugin
-        if ( version_compare( $tinymce_version, '4000', '>=' ) )
-        	$plugin_array['bfa_plugin'] = plugins_url( 'inc/js/tinymce-icons.js', __FILE__ );
-        // < TinyMCE v4 - include old plugin
-        else
-        	$plugin_array['bfa_plugin'] = plugins_url( 'inc/js/tinymce-icons-old.js', __FILE__ );
-
-        return $plugin_array;
+        return $instance;
     }
 
     /**
-     * Add TinyMCE dropdown element.
+     * Better Font Awesome Plugin constructor.
+     *
+     * @since  0.9.0
      */
-    function add_tinymce_buttons( $buttons ) {
-        array_push( $buttons, 'bfaSelect' );
+    function __construct() {
 
-        return $buttons;
+        // Perform plugin initialization actions.
+        $this->initialize();
+
+        // Stop if the Better Font Awesome Library isn't included.
+        if ( ! $this->bfal_exists() ) {
+            add_action( 'admin_init', array( $this, 'deactivate' ) );
+            return false;
+        }
+
+        // Include required files.
+        $this->includes();
+
+        // Initialize the Better Font Awesome Library.
+        $this->initialize_better_font_awesome_library( $this->options );
+
+        // Load the plugin text domain.
+        add_action( 'init', array( $this, 'load_text_domain' ) );
+
+        // Set up the admin settings page.
+        add_action( 'admin_menu', array( $this, 'add_settings_page' ) );
+        add_action( 'admin_init', array( $this, 'add_settings' ) );
+
     }
 
     /**
-	 * Add PHP variables in head for use by TinyMCE JavaScript.
-	 */
-	function admin_head_variables() {
-		$icon_list = implode( ",", $this->icons );
-	    ?>
-		<!-- Better Font Awesome PHP variables for use by TinyMCE JavaScript -->
-		<script type='text/javascript'>
-		var bfa_vars = {
-		    'fa_prefix': '<?php echo $this->prefix; ?>', 
-		    'fa_icons': '<?php echo $icon_list; ?>',
-		};
-		</script>
-		<!-- TinyMCE Better Font Awesome Plugin -->
-	    <?php
-	}
-  
+     * Do necessary initialization actions.
+     *
+     * @since  0.10.0
+     */
+    private function initialize() {
+        
+        // Set display name.
+        $this->plugin_display_name = __( 'Better Font Awesome', 'bfa' );
+
+        // Set options name.
+        $this->option_name = self::SLUG . '_options';
+
+        // Set up main Better Font Awesome Library file path.
+        $this->bfa_lib_file_path = plugin_dir_path( __FILE__ ) . 'lsib/better-font-awesome-library/better-font-awesome-library.php';
+
+        // Get plugin options, and populate defaults as needed.
+        $this->initialize_options( $this->option_name );
+
+    }
+
+    /**
+     * Check if the Better Font Awesome Library is included.
+     *
+     * @since  0.10.0
+     */
+    private function bfal_exists() {
+    
+        if ( ! is_readable( $this->bfa_lib_file_path ) ) {
+            return false;
+        } else {
+            return true;
+        }
+
+    }
+
+    /**
+     * Deactivate and display an error if the BFAL isn't included.
+     *
+     * @since  0.10.0
+     */
+    public function deactivate() {
+        
+        deactivate_plugins( plugin_basename( __FILE__ ) );
+
+        $message = '<h2>' . __( 'Better Font Awesome', 'bfa' ) . '</h2>';
+            $message .= '<p>' . __( 'It appears that Better Font Awesome is missing it\'s <a href="https://github.com/MickeyKay/better-font-awesome-library" target="_blank">core library</a>, which typically occurs when cloning the Git repository and not updating all submodules. Please refer to the plugin\'s <a href="https://github.com/MickeyKay/better-font-awesome" target="_blank">installation instructions</a> for details on how to properly install Better Font Awesome via Git. If you installed from within WordPress, or via the wordpress.org repo, then chances are the install failed and you can try again. If the issue persists, please create a new topic on the plugin\'s <a href="http://wordpress.org/support/plugin/better-font-awesome" target="_blank">support forum</a> or file an issue on the <a href="https://github.com/MickeyKay/better-font-awesome/issues" target="_blank">Github repo</a>.' , 'bfa' ) . '</p>';
+            $message .= '<p><a href="' . get_admin_url( null, 'plugins.php' ) . '">' . __( 'Back to the plugins page &rarr;', 'bfa' ) . '</a></p>';
+
+            wp_die( $message );
+            
+    }
+
+    /**
+     * Include required files.
+     *
+     * @since  0.10.0
+     */
+    private function includes() {
+
+        // Better Font Awesome Library.
+        require_once $this->bfa_lib_file_path;
+
+    }
+
+    /**
+     * Get plugin options, or initialize with default values.
+     *
+     * @since   0.10.0
+     *
+     * @return  array  Plugin options.
+     */
+    private function initialize_options( $option_name ) {
+
+        /**
+         * Get plugin options.
+         *
+         * Run maybe_unserialize() in case we're updating from the old
+         * serialized Titan Framwork option to a new, array-based options.
+         */
+        $this->options = maybe_unserialize( get_option( $option_name ) );
+        
+        // Initialize the plugin options with defaults if they're not set.
+        if ( empty( $this->options ) ) {
+            update_option( $option_name, $this->option_defaults );
+        }
+
+    }
+
+    /**
+     * Initialize the Better Font Awesome Library object.
+     *
+     * @since  0.9.0
+     *
+     * @param  array  $options  Plugin options.
+     */
+    private function initialize_better_font_awesome_library( $options ) {
+        
+        $args = array(
+            'version'             => $options['version'] ? $options['version'] : $this->option_defaults['version'],
+            'minified'            => isset( $options['minified'] ) ? $options['minified'] : '',
+            'remove_existing_fa'  => isset( $options['remove_existing_fa'] ) ? $options['remove_existing_fa'] :'',
+            'load_styles'         => true,
+            'load_admin_styles'   => true,
+            'load_shortcode'      => true,
+            'load_tinymce_plugin' => true,
+        );
+
+        $this->bfa_lib = Better_Font_Awesome_Library::get_instance( $args );
+
+    }
+
+    /**
+     * Load plugin text domain.
+     *
+     * @since  0.10.0
+     */
+    function load_text_domain() {
+        load_plugin_textdomain( self::SLUG, false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+    }
+
+    /**
+     * Create the plugin settings page.
+     */
+    function add_settings_page() {
+
+        add_options_page(
+            $this->plugin_display_name,
+            $this->plugin_display_name,
+            'manage_options',
+            self::SLUG,
+            array( $this, 'create_admin_page' )
+        );
+
+    }
+
+    /**
+     * Output the plugin settings page contents.
+     *
+     * @since  0.10.0
+     */
+    public function create_admin_page() {
+    ?>
+        <div class="wrap">
+            <?php screen_icon(); ?>
+            <h2><?php echo $this->plugin_display_name; ?></h2>
+            <form method="post" action="options.php">
+            <?php
+                // This prints out all hidden setting fields
+                settings_fields( 'option_group' );
+                do_settings_sections( self::SLUG );
+                submit_button();
+                echo $this->get_usage_text();
+            ?>
+            </form>
+        </div>
+    <?php
+    }
+
+    /**
+     * Populate the settings page with specific settings.
+     *
+     * @since  0.10.0
+     */
+    function add_settings() {
+
+        register_setting(
+            'option_group', // Option group
+            $this->option_name, // Option name
+            array( $this, 'sanitize' ) // Sanitize
+        );
+
+        add_settings_section(
+            'settings_section_primary', // ID
+            null, // Title
+            null, // Callback
+            self::SLUG // Page
+        );
+
+        add_settings_field(
+            'version', // ID
+            __( 'Version', 'bfa' ), // Title
+            array( $this, 'version_callback' ), // Callback
+            self::SLUG, // Page
+            'settings_section_primary', // Section
+            $this->get_versions_list() // Args
+        );
+
+        add_settings_field(
+            'minified',
+            __( 'Use minified CSS', 'bfa' ),
+            array( $this, 'checkbox_callback' ),
+            self::SLUG,
+            'settings_section_primary',
+            array(
+                'id' => 'minified',
+                'description' => __( 'Whether to include the minified version of the CSS (checked), or the unminified version (unchecked).', 'bfa' ),
+            )
+        );
+
+        add_settings_field(
+            'remove_existing_fa',
+            __( 'Remove existing Font Awesome', 'bfa' ),
+            array( $this, 'checkbox_callback' ),
+            self::SLUG,
+            'settings_section_primary',
+            array(
+                'id' => 'remove_existing_fa',
+                'description' => __( 'Attempt to remove Font Awesome CSS and shortcodes added by other plugins and themes.', 'bfa' ),
+            )
+        );
+
+    }
+
+    /**
+     * Get all Font Awesome versions available from the jsDelivr API.
+     *
+     * @since 0.10.0
+     *
+     * @return  array  All available versions and the latest version, or an
+     *                 empty array if the API fetch fails.
+     */
+    function get_versions_list() {
+
+        if ( $this->bfa_lib->get_api_value('versions') ) {
+            $versions['latest'] = __( 'Always Latest', 'bfa' );
+
+            foreach ( $this->bfa_lib->get_api_value('versions') as $version ) {
+                $versions[ $version ] = $version;
+            }
+
+        } else {
+            $versions = array();
+        }
+
+        return $versions;
+
+    }
+
+    /**
+     * Output a <select> version selector.
+     *
+     * @since  0.10.0
+     *
+     * @param array  $versions  All available Font Awesome versions
+     */
+    public function version_callback( $versions ) {
+
+        if ( $versions ) {
+
+            // Add 'Always Latest' option.
+            $versions['latest'] = __( 'Always Latest', 'bfa' );
+
+            /**
+             * Remove version 2.0, since its CSS doesn't work with the regex
+             * algorith and no one needs 2.0 anyways.
+             */
+            foreach ( $versions as $index => $version ) {
+                
+                if ( '2.0' == $version ) {
+                    unset( $versions[ $index ] );
+                }
+
+            }
+
+            // Output the <select> element.
+            printf( '<select id="version" name="%s[version]">', esc_attr( $this->option_name ) );
+
+            foreach ( $versions as $version => $text ) {
+
+                printf(
+                    '<option value="%s" %s>%s</option>',
+                    esc_attr( $version ),
+                    selected( $version, $this->options['version'], false ),
+                    esc_attr( $text )
+                );
+
+            }
+
+            echo '</select>';
+
+        } else {
+            ?>
+            <p>
+                <?php 
+                printf( __( 'Version selection is currently unavailable. The attempt to reach the jsDelivr API server failed with the following error: %s', 'bfa' ), 
+                    '<code>' . $this->bfa_lib->get_error('api')->get_error_code() . ': ' . $this->bfa_lib->get_error('api')->get_error_message() . '</code>'
+                );
+                ?>
+            </p>
+            <p>
+                <?php 
+                printf( __( 'Font Awesome will still render using version: %s', 'bfa' ),
+                    '<code>' . $this->bfa_lib->get_version() . '</code>'
+                );
+                ?>
+            </p>
+            <p>
+                <?php
+                printf( __( 'This may be the result of a temporary server or connectivity issue which will resolve shortly. However if the problem persists please file a support ticket on the %splugin forum%s, citing the errors listed above. ', 'bfa' ),
+                        '<a href="http://wordpress.org/support/plugin/better-font-awesome" target="_blank" title="Better Font Awesome support forum">',
+                        '</a>'
+                );
+                ?>
+            </small></p>
+            <?php
+        }
+
+    }
+
+    /**
+     * Output a checkbox setting.
+     *
+     * @since  0.10.0
+     */
+    public function checkbox_callback( $args ) {
+        $option_name = esc_attr( $this->option_name ) . '[' . $args['id'] . ']';
+        $option_value = isset( $this->options[ $args['id'] ] ) ? $this->options[ $args['id'] ] : '';
+        printf(
+            '<label for="%s"><input type="checkbox" value="1" id="%s" name="%s" %s/> %s</label>',
+            $args['id'],
+            $args['id'],
+            $option_name,
+            checked( 1, $option_value, false ),
+            $args['description']
+        );
+    }
+
+    /**
+     * Output a text setting.
+     *
+     * @since 0.10.0
+     */
+    public function text_callback( $args ) {
+        echo '<div class="bfa-text">' . $args['text'] . '</div>';
+    }
+
+    /**
+     * Generate the admin instructions/usage text.
+     *
+     * @since   0.10.0
+     *
+     * @return  string  Usage text.
+     */
+    public function get_usage_text() {
+        return '<div class="bfa-usage-text">' . 
+                __( '<h3>Usage</h3>
+                     <b>Font Awesome version 4.x +</b>&nbsp;&nbsp;&nbsp;<small><a href="http://fontawesome.io/examples/">See all available options &raquo;</a></small><br /><br />
+                     <i class="icon-coffee fa fa-coffee"></i> <code>[icon name="coffee"]</code> or <code>&lt;i class="fa-coffee"&gt;&lt;/i&gt;</code><br /><br />
+                     <i class="icon-coffee fa fa-coffee icon-2x fa-2x"></i> <code>[icon name="coffee" class="fa-2x"]</code> or <code>&lt;i class="fa-coffee fa-2x"&gt;&lt;/i&gt;</code><br /><br />
+                     <i class="icon-coffee fa fa-coffee icon-2x fa-2x icon-rotate-90 fa-rotate-90"></i> <code>[icon name="coffee" class="fa-2x fa-rotate-90"]</code> or <code>&lt;i class="fa-coffee fa-2x fa-rotate-90"&gt;&lt;/i&gt;</code><br /><br /><br />
+                     <b>Font Awesome version 3.x</b>&nbsp;&nbsp;&nbsp;<small><a href="http://fontawesome.io/3.2.1/examples/">See all available options &raquo;</a></small><br /><br />
+                     <i class="icon-coffee fa fa-coffee"></i> <code>[icon name="coffee"]</code> or <code>&lt;i class="icon-coffee"&gt;&lt;/i&gt;</code><br /><br />
+                     <i class="icon-coffee fa fa-coffee icon-2x fa-2x"></i> <code>[icon name="coffee" class="icon-2x"]</code> or <code>&lt;i class="icon-coffee icon-2x"&gt;&lt;/i&gt;</code><br /><br />
+                     <i class="icon-coffee fa fa-coffee icon-2x fa-2x icon-rotate-90 fa-rotate-90"></i> <code>[icon name="coffee" class="icon-2x icon-rotate-90"]</code> or <code>&lt;i class="icon-coffee icon-2x icon-rotate-90"&gt;&lt;/i&gt;</code>',
+                'bfa' ) .
+                '</div>';
+    }
+
+    /**
+     * Sanitize each settings field as needed.
+     *
+     * @param  array  $input  Contains all settings fields as array keys.
+     */
+    public function sanitize( $input ) {
+
+        $new_input = array();
+
+        // Sanitize options to match their type
+        if ( isset( $input['version'] ) ) {
+            $new_input['version'] = sanitize_text_field( $input['version'] );
+        }
+
+        if ( isset( $input['minified'] ) ) {
+            $new_input['minified'] = absint( $input['minified'] );
+        }
+
+        if ( isset( $input['remove_existing_fa'] ) ) {
+            $new_input['remove_existing_fa'] = absint( $input['remove_existing_fa'] );
+        }
+
+        return $new_input;
+
+    }
+
 }
