@@ -64,6 +64,7 @@ Many thanks to the following plugins and their authors:
 * Dmitriy Akulov and the awesome folks at [jsDelivr](http://www.jsdelivr.com/)
 
 And many thanks to the following folks who helped with testing and QA:
+
 * [Jeffrey Dubinksy](http://vanishingforests.org/)
 * [Neil Gee](https://twitter.com/_neilgee)
 * [Michael Beil](https://twitter.com/MichaelBeil)
