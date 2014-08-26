@@ -425,6 +425,11 @@ class Better_Font_Awesome_Library {
 				// Set the API transient.
 				set_transient( self::SLUG . '-api-versions', $response, $transient_expiration );
 
+			} elseif ( 404 == wp_remote_retrieve_response_code( $response ) ) {
+				
+				$this->set_error( 'api', 404, __( 'The jsDelivr API servers appear to be temporarily unavailable.', 'bfa') . " (URL: $url" );
+				$response = '';
+
 			} else {
 
 				$this->set_error( 'api', $response->get_error_code(), $response->get_error_message() . " (URL: $url" );
@@ -1037,11 +1042,14 @@ class Better_Font_Awesome_Library {
 			        </p>
 		        <?php endif; ?>
 
+		        <!-- Fallback Text -->
+		        <p><?php echo __( 'Better Font Awesome will still render using the included fallback version: ', 'bfa' ) . '<code>' . $this->font_awesome_version . '</code>' ; ?></p>
+
 		        <!-- Solution Text -->
 		        <p>
 		        	<b><?php _e( 'Solution', 'bfa' ); ?></b><br />
 			        <?php
-			        printf( __( 'This may be the result of a temporary server or connectivity issue which will resolve shortly. However if the problem persists please file a support ticket on the %splugin forum%s, citing the errors listed above. ', 'bfa' ),
+			        printf( __( 'Font Awesome will steThis may be the result of a temporary server or connectivity issue which will resolve shortly. However if the problem persists please file a support ticket on the %splugin forum%s, citing the errors listed above. ', 'bfa' ),
 	                    '<a href="http://wordpress.org/support/plugin/better-font-awesome" target="_blank" title="Better Font Awesome support forum">',
 	                    '</a>'
 	                );
