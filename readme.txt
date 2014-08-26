@@ -4,7 +4,7 @@ Tags: better, font, awesome, icon, icons, bootstrap, fontstrap, cdn, shortcode
 Donate link: http://mightyminnow.com
 Requires at least: 3.0
 Tested up to: 4.0
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2+
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -64,6 +64,7 @@ Many thanks to the following plugins and their authors:
 * Dmitriy Akulov and the awesome folks at [jsDelivr](http://www.jsdelivr.com/)
 
 And many thanks to the following folks who helped with testing and QA:
+
 * [Jeffrey Dubinksy](http://vanishingforests.org/)
 * [Neil Gee](https://twitter.com/_neilgee)
 * [Michael Beil](https://twitter.com/MichaelBeil)
@@ -104,6 +105,9 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 == Changelog ==
 
+= 1.0.1 =
+* Fix error handling for 404 API requests.
+
 = 1.0.0 =
 * Fully refactor the back-end.
 * Switch to just using the jsDelivr CDN.
@@ -139,6 +143,9 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+* Fix error handling for 404 API requests.
 
 = 1.0.0 =
 * Fully refactor the back-end.
