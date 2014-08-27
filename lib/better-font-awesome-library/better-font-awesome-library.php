@@ -425,14 +425,14 @@ class Better_Font_Awesome_Library {
 				// Set the API transient.
 				set_transient( self::SLUG . '-api-versions', $response, $transient_expiration );
 
-			} elseif ( 404 == wp_remote_retrieve_response_code( $response ) ) {
+			} elseif ( ! $response || 404 == wp_remote_retrieve_response_code( $response ) ) {
 				
-				$this->set_error( 'api', 404, __( 'The jsDelivr API servers appear to be temporarily unavailable.', 'bfa') . " (URL: $url" );
+				$this->set_error( 'api', 404, __( 'The jsDelivr API servers appear to be temporarily unavailable.', 'bfa') . " (URL: $url)" );
 				$response = '';
 
 			} else {
 
-				$this->set_error( 'api', $response->get_error_code(), $response->get_error_message() . " (URL: $url" );
+				$this->set_error( 'api', $response->get_error_code(), $response->get_error_message() . " (URL: $url)" );
 				$response = '';
 
 			}
