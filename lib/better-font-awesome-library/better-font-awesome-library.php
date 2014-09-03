@@ -402,8 +402,8 @@ class Better_Font_Awesome_Library {
 	 *                          WP_ERROR if the fetch fails.
 	 */
 	private function fetch_api_data( $url ) {
-		$url = 'asdf';
-		if ( true ) {
+
+		if ( false === ( $response = get_transient( self::SLUG . '-api-versions' ) ) ) {
 			
 			$response = wp_remote_get( $url, $this->wp_remote_get_args );
 
