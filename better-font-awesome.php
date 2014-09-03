@@ -461,7 +461,7 @@ class Better_Font_Awesome_Plugin {
             <p>
                 <?php 
                 printf( __( 'Font Awesome will still render using version: %s', 'bfa' ),
-                    '<code>' . $this->bfa_lib->get_version() . '</code>'
+                    '<code>' . $this->bfa_lib->get_fallback_version() . '</code>'
                 );
                 ?>
             </p>

@@ -402,8 +402,8 @@ class Better_Font_Awesome_Library {
 	 *                          WP_ERROR if the fetch fails.
 	 */
 	private function fetch_api_data( $url ) {
-		
-		if ( false === ( $response = get_transient( self::SLUG . '-api-versions' ) ) ) {
+		$url = 'asdf';
+		if ( true ) {
 			
 			$response = wp_remote_get( $url, $this->wp_remote_get_args );
 
@@ -1177,6 +1177,17 @@ class Better_Font_Awesome_Library {
 	 */
 	public function get_version() {
 		return $this->font_awesome_version;
+	}
+
+	/**
+	 * Get the fallback version of Font Awesome included locally.
+	 *
+	 * @since   1.0.0
+	 *
+	 * @return  string  Font Awesome fallback version.
+	 */
+	public function get_fallback_version() {
+		return $this->fallback_data['version'];
 	}
 
 	/**
