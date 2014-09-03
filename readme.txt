@@ -4,7 +4,7 @@ Tags: better, font, awesome, icon, icons, bootstrap, fontstrap, cdn, shortcode
 Donate link: http://mightyminnow.com
 Requires at least: 3.0
 Tested up to: 4.0
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2+
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -105,6 +105,10 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 == Changelog ==
 
+= 1.0.2 =
+* Add updated .pot file.
+* Further improve error handling and fallback.
+
 = 1.0.1 =
 * Fix error handling for 404 API requests.
 
@@ -143,6 +147,10 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 
 == Upgrade Notice ==
+
+= 1.0.2 =
+* Add updated .pot file.
+* Further improve error handling and fallback.
 
 = 1.0.1 =
 * Fix error handling for 404 API requests.
