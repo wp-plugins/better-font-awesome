@@ -54,6 +54,9 @@ Note that prefixes are required for HTML usage, and are version-specific. For th
 = Advanced / Integration =
 Better Font Awesome is built around the [Better Font Awesome Library](https://github.com/MickeyKay/better-font-awesome-library). This library allows you to integrate Better Font Awesome into any custom project you want to create (perhaps a theme or plugin with a constantly up-to-date icon list), and includes all the [filters](https://github.com/MickeyKay/better-font-awesome-library#filters) you might need.
 
+= Languages / Translations =
+* English
+* French (thanks to [David Tisserand](www.pixemotion.fr))
 
 = Credits =
 Many thanks to the following plugins and their authors:
