@@ -56,7 +56,7 @@ Better Font Awesome is built around the [Better Font Awesome Library](https://gi
 
 = Languages / Translations =
 * English
-* French (thanks to [David Tisserand](www.pixemotion.fr))
+* French (thanks to [David Tisserand](http://www.pixemotion.fr))
 
 = Credits =
 Many thanks to the following plugins and their authors:
