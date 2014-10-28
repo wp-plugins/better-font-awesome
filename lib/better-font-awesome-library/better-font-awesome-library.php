@@ -212,7 +212,7 @@ class Better_Font_Awesome_Library {
 		$this->args = $args;
 
 		// Load the library functionality.
-		add_action( 'plugins_loaded', array( $this, 'load' ) );
+		$this->load();
 
 	}
 
@@ -287,7 +287,7 @@ class Better_Font_Awesome_Library {
 		// Load TinyMCE functionality.
 		if ( $this->args['load_tinymce_plugin'] ) {
 		
-			add_action( 'admin_head', array( $this, 'add_tinymce_components' ) );
+			add_action( 'admin_init', array( $this, 'add_tinymce_components' ) );
 			add_action( 'admin_head', array( $this, 'output_admin_head_variables' ) );
 			add_action( 'admin_enqueue_scripts', array( $this, 'register_custom_admin_css' ), 15 );
 
@@ -425,14 +425,19 @@ class Better_Font_Awesome_Library {
 				// Set the API transient.
 				set_transient( self::SLUG . '-api-versions', $response, $transient_expiration );
 
-			} elseif ( ! $response || 404 == wp_remote_retrieve_response_code( $response ) ) {
-				
-				$this->set_error( 'api', 404, __( 'The jsDelivr API servers appear to be temporarily unavailable.', 'bfa') . " (URL: $url)" );
-				$response = '';
-
-			} else {
+			} elseif ( is_wp_error( $response ) ) { // Check for faulty wp_remote_get()
 
 				$this->set_error( 'api', $response->get_error_code(), $response->get_error_message() . " (URL: $url)" );
+				$response = '';
+
+			} elseif ( isset( $response['response'] ) ) { // Check for 404 and other non-WP_ERROR codes
+				
+				$this->set_error( 'api', $response['response']['code'], $response['response']['message'] . " (URL: $url)" );
+				$response = '';
+
+			} else { // Total failsafe
+
+				$this->set_error( 'api', 'Unknown', __( 'The jsDelivr API servers appear to be temporarily unavailable.', 'better-font-awesome' ) . " (URL: $url)" );
 				$response = '';
 
 			}
@@ -573,14 +578,25 @@ class Better_Font_Awesome_Library {
 		}
 
 		/**
-		 * Use the local fallback if both the transient and wp_remote_get()
-		 * methods fail.
+		 * Filter the force fallback flag.
+		 *
+		 * @since  1.0.4
+		 *
+		 * @param  bool  Whether or not to force the fallback CSS.
 		 */
-		if ( is_wp_error( $response ) ) {
+		$force_fallback = apply_filters( 'bfa_force_fallback', false );
+
+		/**
+		 * Use the local fallback if both the transient and wp_remote_get()
+		 * methods fail, or if fallback is forced with bfa_force_fallback filter.
+		 */
+		if ( is_wp_error( $response ) || $force_fallback ) {
 
 			// Log the CSS fetch error.
-			$this->set_error( 'css', $response->get_error_code(), $response->get_error_message() . " (URL: $url)" );
-			
+			if ( ! $force_fallback ) {
+				$this->set_error( 'css', $response->get_error_code(), $response->get_error_message() . " (URL: $url)" );
+			}
+
 			// Use the local fallback CSS.
 			$response = $this->fallback_data['css'];
 
@@ -637,11 +653,11 @@ class Better_Font_Awesome_Library {
 			$response = wp_remote_retrieve_body( $response );
 			$this->set_css_transient( $version, $response );
 
-		} elseif ( is_wp_error( $response ) ) {
+		} elseif ( is_wp_error( $response ) ) { // Check for faulty wp_remote_get()
 			$response = $response;
-		} elseif ( isset( $response['response'] ) ) {
+		} elseif ( isset( $response['response'] ) ) { // Check for 404 and other non-WP_ERROR codes
 			$response = new WP_Error( $response['response']['code'], $response['response']['message'] . " (URL: $url)" );
-		} else {
+		} else { // Total failsafe
 			$response = '';
 		}
 
@@ -706,23 +722,21 @@ class Better_Font_Awesome_Library {
 	private function setup_icon_array( $css ) {
 		
 		$icons = array();
+		$hex_codes = array();
 
-		// Get all CSS selectors that have a "content:" pseudo-element rule.
-		preg_match_all( '/(\.[^}]*)\s*{\s*(content:)/s', $css, $matches );
-		$selectors = $matches[1];
+		/**
+		 * Get all CSS selectors that have a "content:" pseudo-element rule,
+		 * as well as all associated hex codes.
+		 */
+		preg_match_all( '/\.(icon-|fa-)([^,}]*)\s*:before\s*{\s*(content:)\s*"(\\\\[^"]+)"/s', $css, $matches );
+		$icons = $matches[2];
+		$hex_codes = $matches[4];
 
-		// Select for all icon- and fa- selectors and split where there are commas.
-		foreach ( $selectors as $selector ) {
-			preg_match_all( '/\.(icon-|fa-)([^,]*)\s*:before/s', $selector, $matches );
-			$clean_selectors = $matches[2];
+		// Add hex codes as icon array index.
+		$icons = array_combine( $hex_codes, $icons );
 
-			// Create an array of selectors (icon names).
-			foreach ( $clean_selectors as $clean_selector )
-				$icons[] = $clean_selector;
-		}
-
-		// Alphabetize the icons array.
-		sort( $icons );
+		// Alphabetize the icons array by icon name.
+		asort( $icons );
 
 		/**
 		 * Filter the array of available icons.
@@ -1009,19 +1023,19 @@ class Better_Font_Awesome_Library {
 	 */
 	public function do_admin_notice() { 
 
-		if ( ! empty( $this->errors ) ) :
+		if ( ! empty( $this->errors ) && apply_filters( 'bfa_show_errors', true ) ) :
 			?>
 		    <div class="error">
 		    	<p>
-		    		<b><?php _e( 'Better Font Awesome', 'bfa' ); ?></b>
+		    		<b><?php _e( 'Better Font Awesome', 'better-font-awesome' ); ?></b>
 		    	</p>
 	        	
 	        	<!-- API Error -->
 	        	<?php if ( is_wp_error ( $this->get_error('api') ) ) : ?>
 		        	<p>
-		        		<b><?php _e( 'API Error', 'bfa' ); ?></b><br />
+		        		<b><?php _e( 'API Error', 'better-font-awesome' ); ?></b><br />
 		        		<?php 
-		        		printf( __( 'The attempt to reach the jsDelivr API server failed with the following error: %s', 'bfa' ), 
+		        		printf( __( 'The attempt to reach the jsDelivr API server failed with the following error: %s', 'better-font-awesome' ), 
 		        			'<code>' . $this->get_error('api')->get_error_code() . ': ' . $this->get_error('api')->get_error_message() . '</code>'
 		        		);
 		        		?>
@@ -1031,9 +1045,9 @@ class Better_Font_Awesome_Library {
 				<!-- CSS Error -->
 	        	<?php if ( is_wp_error ( $this->get_error('css') ) ) : ?>
 		        	<p>
-		        		<b><?php _e( 'Remote CSS Error', 'bfa' ); ?></b><br />
+		        		<b><?php _e( 'Remote CSS Error', 'better-font-awesome' ); ?></b><br />
 		        		<?php 
-		        		printf( __( 'The attempt to fetch the remote Font Awesome stylesheet failed with the following error: %s %s The embedded fallback Font Awesome will be used instead (version: %s).', 'bfa' ), 
+		        		printf( __( 'The attempt to fetch the remote Font Awesome stylesheet failed with the following error: %s %s The embedded fallback Font Awesome will be used instead (version: %s).', 'better-font-awesome' ), 
 		        			'<code>' . $this->get_error('css')->get_error_code() . ': ' . $this->get_error('css')->get_error_message() . '</code>',
 		        			'<br />',
 		        			'<code>' . $this->font_awesome_version . '</code>'
@@ -1043,13 +1057,13 @@ class Better_Font_Awesome_Library {
 		        <?php endif; ?>
 
 		        <!-- Fallback Text -->
-		        <p><?php echo __( '<b>Don\'t worry! Better Font Awesome will still render using the included fallback version:</b> ', 'bfa' ) . '<code>' . $this->fallback_data['version'] . '</code>' ; ?></p>
+		        <p><?php echo __( '<b>Don\'t worry! Better Font Awesome will still render using the included fallback version:</b> ', 'better-font-awesome' ) . '<code>' . $this->fallback_data['version'] . '</code>' ; ?></p>
 
 		        <!-- Solution Text -->
 		        <p>
-		        	<b><?php _e( 'Solution', 'bfa' ); ?></b><br />
+		        	<b><?php _e( 'Solution', 'better-font-awesome' ); ?></b><br />
 			        <?php
-			        printf( __( 'This may be the result of a temporary server or connectivity issue which will resolve shortly. However if the problem persists please file a support ticket on the %splugin forum%s, citing the errors listed above. ', 'bfa' ),
+			        printf( __( 'This may be the result of a temporary server or connectivity issue which will resolve shortly. However if the problem persists please file a support ticket on the %splugin forum%s, citing the errors listed above. ', 'better-font-awesome' ),
 	                    '<a href="http://wordpress.org/support/plugin/better-font-awesome" target="_blank" title="Better Font Awesome support forum">',
 	                    '</a>'
 	                );
@@ -1172,6 +1186,17 @@ class Better_Font_Awesome_Library {
 	 */
 	public function get_version() {
 		return $this->font_awesome_version;
+	}
+
+	/**
+	 * Get the fallback version of Font Awesome included locally.
+	 *
+	 * @since   1.0.0
+	 *
+	 * @return  string  Font Awesome fallback version.
+	 */
+	public function get_fallback_version() {
+		return $this->fallback_data['version'];
 	}
 
 	/**
