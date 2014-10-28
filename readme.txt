@@ -4,7 +4,7 @@ Tags: better, font, awesome, icon, icons, bootstrap, fontstrap, cdn, shortcode
 Donate link: http://mightyminnow.com
 Requires at least: 3.0
 Tested up to: 4.1
-Stable tag: 1.0.5
+Stable tag: 1.0.6
 License: GPLv2+
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -108,6 +108,9 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 == Changelog ==
 
+= 1.0.6 =
+* Unhook library load() function from plugins_loaded and run directly from constructor (fixes bug preventing developers from overriding initialization easily).
+
 = 1.0.5 =
 * Add fa_force_fallback and bfa_show_errors filters.
 * Add hex icon values as $icon array indexes.
@@ -161,6 +164,9 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 
 == Upgrade Notice ==
+
+= 1.0.6 =
+* Unhook library load() function from plugins_loaded and run directly from constructor (fixes bug preventing developers from overriding initialization easily).
 
 = 1.0.5 =
 * Add fa_force_fallback and bfa_show_errors filters.
