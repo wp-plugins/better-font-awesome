@@ -12,7 +12,7 @@
  * Plugin Name:       Better Font Awesome
  * Plugin URI:        http://wordpress.org/plugins/better-font-awesome
  * Description:       The ultimate Font Awesome icon plugin for WordPress.
- * Version:           1.0.7
+ * Version:           1.0.8
  * Author:            MIGHTYminnow & Mickey Kay
  * Author URI:        mickey@mickeykaycreative.com
  * License:           GPLv2+
@@ -21,7 +21,7 @@
  * GitHub Plugin URI: https://github.com/MickeyKay/better-font-awesome
  */
 
-add_action( 'plugins_loaded', 'bfa_start', 5 );
+add_action( 'init', 'bfa_start', 5 );
 /**
  * Initialize the Better Font Awesome plugin.
  *
@@ -110,6 +110,7 @@ class Better_Font_Awesome_Plugin {
         'version'            => 'latest',
         'minified'           => 1,
         'remove_existing_fa' => '',
+        'hide_admin_notices' => '',
     );
 
     /**
@@ -266,6 +267,12 @@ class Better_Font_Awesome_Plugin {
      */
     private function initialize_better_font_awesome_library( $options ) {
         
+        // Hide admin notices if setting is checked.
+        if ( isset( $options['hide_admin_notices'] ) ) {
+            add_filter( 'bfa_show_errors', '__return_false' );
+        }
+
+        // Initialize BFA library.
         $args = array(
             'version'             => isset( $options['version'] ) ? $options['version'] : $this->option_defaults['version'],
             'minified'            => isset( $options['minified'] ) ? $options['minified'] : '',
@@ -377,6 +384,18 @@ class Better_Font_Awesome_Plugin {
             array(
                 'id' => 'remove_existing_fa',
                 'description' => __( 'Attempt to remove Font Awesome CSS and shortcodes added by other plugins and themes.', 'better-font-awesome' ),
+            )
+        );
+
+        add_settings_field(
+            'hide_admin_notices',
+            __( 'Hide admin notices', 'better-font-awesome' ),
+            array( $this, 'checkbox_callback' ),
+            self::SLUG,
+            'settings_section_primary',
+            array(
+                'id' => 'hide_admin_notices',
+                'description' => __( 'Hide the default admin warnings that are shown when API and CDN errors occur.', 'better-font-awesome' ),
             )
         );
 
@@ -547,6 +566,10 @@ class Better_Font_Awesome_Plugin {
 
         if ( isset( $input['remove_existing_fa'] ) ) {
             $new_input['remove_existing_fa'] = absint( $input['remove_existing_fa'] );
+        }
+
+        if ( isset( $input['hide_admin_notices'] ) ) {
+            $new_input['hide_admin_notices'] = absint( $input['hide_admin_notices'] );
         }
 
         return $new_input;
