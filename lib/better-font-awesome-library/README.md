@@ -46,14 +46,16 @@ git submodule update
 
 2. Add the following code to your main plugin file or your theme's functions.php file.
    ```
-	add_action( 'plugins_loaded', 'my_prefix_load_bfa' );
+   	// Include the main library file. Make sure to modify the path to match your directory structure.
+	require_once ( dirname( __FILE__ ) . '/better-font-awesome-library/better-font-awesome-library.php' );
+
+	add_action( 'init', 'my_prefix_load_bfa' );
 	/**	
 	 * Initialize the Better Font Awesome Library.
+	 *
+	 * (see usage notes below on proper hook priority)
 	 */
 	function my_prefix_load_bfa() {
-
-		// Include the main library file. Make sure to modify the path to match your directory structure.
-		require_once ( dirname( __FILE__ ) . '/better-font-awesome-library/better-font-awesome-library.php' );
 
 		// Set the library initialization args (defaults shown).
 		$args = array(
@@ -68,13 +70,14 @@ git submodule update
 		
 		// Initialize the Better Font Awesome Library.
 		Better_Font_Awesome_Library::get_instance( $args );
+
 	}
 ```
 
 3. If desired, use the [Better Font Awesome Library object](#the-better-font-awesome-library-object) to manually include Font Awesome CSS, output lists of available icons, create your own shortcodes, and much more.
 
 #### Usage Notes ####
-The Better Font Awesome Library is designed to work in conjunction with the [Better Font Awesome](https://wordpress.org/plugins/better-font-awesome/) WordPress plugin. The plugin initializes this library (with its initialization args) on the `plugins_loaded` hook, priority `5`. When using the Better Font Awesome Library in your project, you have two options:
+The Better Font Awesome Library is designed to work in conjunction with the [Better Font Awesome](https://wordpress.org/plugins/better-font-awesome/) WordPress plugin. The plugin initializes this library (with its initialization args) on the `init` hook, priority `5`. When using the Better Font Awesome Library in your project, you have two options:
 
 1. Initialize later, to ensure that any Better Font Awesome plugin settings override yours.
 1. Initialize earlier, to "take over" and prevent Better Font Awesome settings from having an effect.
@@ -156,7 +159,7 @@ The object has the following public methods:
 (string) Returns the active Font Awesome stylesheet URL.
 
 #### get_icons() ####
-(array) Returns an alphabetical array of unprefixed icon names for all available icons in the active Font Awesome version.
+(array) Returns an associative array of icon hex values (index, e.g. \f000) and unprefixed icon names (values, e.g. rocket) for all available icons in the active Font Awesome version.
 
 #### get_prefix() ####
 (string) Returns the version-dependent prefix ('fa' or 'icon') that is used in the icons' CSS classes.
@@ -255,9 +258,25 @@ Applied to the entire `<i>` element that is output for each icon.
 
 * `$output` (string)
 
+#### bfa_force_fallback ####
+Applied to the boolean that determines whether or not to force the included fallback version of Font Awesome to load. This can be useful if you're having trouble with delays or timeouts.
+
+**Parameters**
+
+* `$force_fallback` (false)
+
+#### bfa_show_errors ####
+Applied to the boolean that determines whether or not to suppress all Font Awesome warnings that normally display in the admin.
+
+**Parameters**
+
+* `$show_errors` (true)
+
 
 ## To Do ##
 Ideas? File an issue or add a pull request!
+* Add README section on manually updating the fallback version.
+* Remove existing FA? - move to later hook so that it works for styles enqueued via shortcode (= wp_footer basically)
 
 ## Credits ##
 Special thanks to the following folks and their plugins for inspiration and support:

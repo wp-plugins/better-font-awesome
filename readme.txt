@@ -3,8 +3,8 @@ Contributors: McGuive7, MIGHTYminnow
 Tags: better, font, awesome, icon, icons, bootstrap, fontstrap, cdn, shortcode
 Donate link: http://mightyminnow.com
 Requires at least: 3.0
-Tested up to: 4.1
-Stable tag: 1.0.7
+Tested up to: 4.2
+Stable tag: 1.0.8
 License: GPLv2+
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -108,6 +108,10 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 == Changelog ==
 
+= 1.0.8 =
+* Add admin setting to hide admin notices for API and CDN connectivity warnings.
+* Update translations.
+
 = 1.0.7 =
 * Update included fallback to Font Awesome version 4.3.
 
@@ -167,6 +171,10 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 
 == Upgrade Notice ==
+
+= 1.0.8 =
+* Add admin setting to hide admin notices for API and CDN connectivity warnings.
+* Update translations.
 
 = 1.0.7 =
 * Update included fallback to Font Awesome version 4.3.
