@@ -54,7 +54,7 @@ class Better_Font_Awesome_Library {
 	 * 
 	 * @var    string
 	 */
-	const JSDELIVR_API_URL = 'http://api.jsdelivr.com/v1/jsdevr/libraries/fontawesome/?fields=versions,lastversion';
+	const JSDELIVR_API_URL = 'http://api.jsdelivr.com/v1/jsdelivr/libraries/fontawesome/?fields=versions,lastversion';
 	
 	/**
 	 * Initialization args.
