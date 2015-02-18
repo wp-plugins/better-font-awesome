@@ -454,7 +454,7 @@ class Better_Font_Awesome_Library {
 	 */
 	private function fetch_api_data( $url ) {
 
-		if ( true ) {
+		if ( false === ( $response = get_transient( self::SLUG . '-api-versions' ) ) ) {
 			
 			$response = wp_remote_get( $url, $this->wp_remote_get_args );
 
