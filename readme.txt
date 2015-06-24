@@ -113,6 +113,7 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 * Update Better Font Awesome Library to version 1.3.4.
 * Fix double shortcode insert issue.
 * Fix behavior in which clicking shortcode insert button scrolls to top of page.
+* Update button initialization JS to work when in Text mode in TinyMCE.
 
 = 1.3.3 =
 * Update plugin and BFAL to all fire on `init` hook instead of mix of `plugins_loaded` and `after_theme_setup`. This should fix issues in which icons don't show up when BFAL is used in other plugins.
@@ -213,6 +214,7 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 * Update Better Font Awesome Library to version 1.3.4.
 * Fix double shortcode insert issue.
 * Fix behavior in which clicking shortcode insert button scrolls to top of page.
+* Update button initialization JS to work when in Text mode in TinyMCE.
 
 = 1.3.3 =
 * Update plugin and BFAL to all fire on `init` hook instead of mix of `plugins_loaded` and `after_theme_setup`. This should fix issues in which icons don't show up when BFAL is used in other plugins.
