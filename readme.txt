@@ -4,7 +4,7 @@ Tags: better, font, awesome, icon, icons, bootstrap, fontstrap, cdn, shortcode
 Donate link: http://mightyminnow.com
 Requires at least: 3.0
 Tested up to: 4.3
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 License: GPLv2+
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -108,6 +108,9 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 
 == Changelog ==
+
+= 1.4.2 =
+* Fix: icon picker not working for ACF Pro repeater field.
 
 = 1.4.1 =
 * Fix: icon picker not working for ACF repeater field.
@@ -215,6 +218,9 @@ Better Font Awesome does it's best to load after any existing Font Awesome CSS, 
 
 
 == Upgrade Notice ==
+
+= 1.4.2 =
+* Fix: icon picker not working for ACF Pro repeater field.
 
 = 1.4.1 =
 * Fix: icon picker not working for ACF repeater field.
